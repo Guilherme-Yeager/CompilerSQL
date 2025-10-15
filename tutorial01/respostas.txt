@@ -1,0 +1,79 @@
+Questão 02:
+
+WARNING: No t_error rule is defined
+Token     Lexema    Linha     Coluna    
+PLUS      +         1         0         
+MINUS     -         1         1         
+MINUS     -         1         2         
+PLUS      +         1         3         
+PLUS      +         1         4         
+MINUS     -         1         5 
+
+Questão 03:
+
+WARNING: No t_error rule is defined
+Token     Lexema    Linha     Coluna    
+PLUS      +         1         0         
+MINUS     -         1         1         
+MINUS     -         1         2         
+Traceback (most recent call last):
+  File "/content/exemplo01.py", line 14, in <module>
+    for tok in lexer:
+               ^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/ply/lex.py", line 419, in next
+    t = self.token()
+        ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/ply/lex.py", line 396, in token
+    raise LexError("Illegal character '%s' at index %d" % (lexdata[lexpos], lexpos), lexdata[lexpos:])
+ply.lex.LexError: Illegal character ' ' at index 3
+
+A execução desta vez acabou lançando uma exceção ao encontrar o espaço em branco ' ', pois da forma em que está, esse caractere não é reconhecido no escopo deste analisador léxico.
+
+Questão 04:
+
+WARNING: No t_error rule is defined
+Token     Lexema    Linha     Coluna    
+PLUS      +         1         0         
+MINUS     -         1         4         
+MINUS     -         1         6         
+MINUS     -         1         7         
+PLUS      +         1         8         
+PLUS      +         1         11        
+PLUS      +         1         14   
+
+O que mudou foi que agora o analisador léxico reconhece espaços em brancos, tabulações ou quebras de linhas e estes são ignorados, pois não são necessários para as próximas etapas. Não, como ocorreram duas quebras de linhas no input, era para a última linha ser a "3" e não "1".
+
+
+Questão 05:
+
+WARNING: No t_error rule is defined
+Token     Lexema    Linha     Coluna    
+PLUS      +         1         0         
+MINUS     -         2         4         
+MINUS     -         2         6         
+MINUS     -         2         7         
+PLUS      +         2         8         
+PLUS      +         3         11        
+PLUS      +         3         14   
+
+Sim.
+
+Questão 11:
+
+lft
+muito
+legal
+error in INITIAL state, 3
+error in INITIAL state, 3
+error in INITIAL state, 2
+error in INITIAL state, 2
+34423
+error in foo state, a
+error in foo state, m
+error in foo state, e
+error in foo state, r
+
+Sim.
+
+
+
