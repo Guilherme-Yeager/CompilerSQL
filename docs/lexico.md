@@ -488,194 +488,104 @@ As divisões são:
         <td>WITH</td>
         <td>EXECUTE</td>
         <td>PRIMARY</td>
-        <td>WITHIN GROUP</td>
         <td>EXISTS</td>
+        <td>PRINT</td>
       </tr>
       <tr>
-        <td>PRINT</td>
         <td>WRITETEXT</td>
         <td>EXIT</td>
         <td>PROC</td>
         <td>EXCEPTION</td>
+        <td>ABSOLUTE</td>
       </tr>
-              <td>ABSOLUTE</td>
-        <td>EXEC</td>
+      <tr>
         <td>OVERLAPS</td>
         <td>ACTION</td>
-        <td>EXECUTE</td>
-      </tr>
-      <tr>
         <td>ADA</td>
-        <td>EXISTS</td>
         <td>PARTIAL</td>
-        <td>ADD</td>
-        <td>EXTERNAL</td>
+        <td>PASCAL</td>
       </tr>
       <tr>
-        <td>PASCAL</td>
-        <td>ALL</td>
         <td>EXTRACT</td>
         <td>POSITION</td>
         <td>ALLOCATE</td>
-      </tr>
-      <tr>
         <td>FALSE</td>
-        <td>PRECISION</td>
-        <td>ALTER</td>
-        <td>FETCH</td>
         <td>PREPARE</td>
       </tr>
       <tr>
-        <td>AND</td>
         <td>FIRST</td>
         <td>PRESERVE</td>
-        <td>ANY</td>
         <td>FLOAT</td>
-      </tr>
-      <tr>
-        <td>PRIMARY</td>
         <td>ARE</td>
-        <td>FOR</td>
         <td>PRIOR</td>
-        <td>AS</td>
       </tr>
       <tr>
-        <td>FOREIGN</td>
-        <td>PRIVILEGES</td>
-        <td>ASC</td>
         <td>FORTRAN</td>
-        <td>PROCEDURE</td>
-      </tr>
-      <tr>
         <td>ASSERTION</td>
         <td>FOUND</td>
-        <td>PUBLIC</td>
         <td>AT</td>
-        <td>FROM</td>
-      </tr>
-      <tr>
-        <td>READ</td>
-        <td>AUTHORIZATION</td>
-        <td>FULL</td>
         <td>REAL</td>
-        <td>AVG</td>
       </tr>
       <tr>
+        <td>AVG</td>
         <td>GET</td>
-        <td>REFERENCES</td>
-        <td>BEGIN</td>
         <td>GLOBAL</td>
         <td>RELATIVE</td>
-      </tr>
-      <tr>
-        <td>BETWEEN</td>
-        <td>GO</td>
-        <td>RESTRICT</td>
         <td>BIT</td>
-        <td>GOTO</td>
       </tr>
       <tr>
-        <td>REVOKE</td>
         <td>BIT_LENGTH</td>
-        <td>GRANT</td>
-        <td>RIGHT</td>
         <td>BOTH</td>
-      </tr>
-      <tr>
-        <td>GROUP</td>
-        <td>ROLLBACK</td>
-        <td>BY</td>
-        <td>HAVING</td>
-        <td>ROWS</td>
-      </tr>
-      <tr>
-        <td>CASCADE</td>
         <td>HOUR</td>
-        <td>SCHEMA</td>
         <td>CASCADED</td>
-        <td>IDENTITY</td>
+        <td>SCROLL</td>
       </tr>
       <tr>
-        <td>SCROLL</td>
-        <td>CASE</td>
         <td>IMMEDIATE</td>
         <td>SECOND</td>
         <td>CAST</td>
-      </tr>
-      <tr>
-        <td>IN</td>
         <td>SECTION</td>
         <td>CATALOG</td>
-        <td>INCLUDE</td>
-        <td>SELECT</td>
       </tr>
       <tr>
+        <td>INCLUDE</td>
         <td>CHAR</td>
-        <td>INDEX</td>
         <td>SESSION</td>
         <td>CHAR_LENGTH</td>
-        <td>SESSION_USER</td>
-      </tr>
-      <tr>
         <td>CHARACTER</td>
-        <td>INITIALLY</td>
-        <td>SET</td>
-        <td>CHARACTER_LENGTH</td>
-        <td>INNER</td>
       </tr>
       <tr>
+        <td>INITIALLY</td>
+        <td>CHARACTER_LENGTH</td>
         <td>SIZE</td>
-        <td>CHECK</td>
         <td>INPUT</td>
         <td>SMALLINT</td>
-        <td>CLOSE</td>
       </tr>
       <tr>
         <td>INSENSITIVE</td>
-        <td>SOME</td>
-        <td>COALESCE</td>
-        <td>INSERT</td>
         <td>SPACE</td>
-      </tr>
-      <tr>
-        <td>COLLATE</td>
         <td>INT</td>
         <td>SQL</td>
         <td>COLLATION</td>
-        <td>INTEGER</td>
       </tr>
       <tr>
+        <td>INTEGER</td>
         <td>SQLCA</td>
-        <td>COLUMN</td>
-        <td>INTERSECT</td>
         <td>SQLCODE</td>
         <td>SQLERROR</td>
+        <td>CONNECT</td>
       </tr>
       <tr>
-        <td>CONNECT</td>
-        <td>INTO</td>
         <td>SQLSTATE</td>
         <td>CONNECTION</td>
-        <td>IS</td>
-      </tr>
-      <tr>
         <td>SQLWARNING</td>
-        <td>CONSTRAINT</td>
         <td>ISOLATION</td>
         <td>SUBSTRING</td>
+      </tr>
+      <tr>
         <td>CONSTRAINTS</td>
-      </tr>
-      <tr>
-        <td>JOIN</td>
         <td>SUM</td>
-        <td>CONTINUE</td>
-        <td>KEY</td>
-        <td>SYSTEM_USER</td>
-      </tr>
-      <tr>
-        <td>CONVERT</td>
         <td>LANGUAGE</td>
-        <td>TABLE</td>
         <td>CORRESPONDING</td>
         <td>LAST</td>
       </tr>
@@ -683,139 +593,69 @@ As divisões são:
         <td>TEMPORARY</td>
         <td>COUNT</td>
         <td>LEADING</td>
-        <td>THEN</td>
-        <td>CREATE</td>
-      </tr>
-      <tr>
-        <td>LEFT</td>
-        <td>TIME</td>
-        <td>CROSS</td>
         <td>LEVEL</td>
+        <td>TIME</td>
+      </tr>
+      <tr>
         <td>TIMESTAMP</td>
-      </tr>
-      <tr>
-        <td>CURRENT</td>
-        <td>LIKE</td>
         <td>TIMEZONE_HOUR</td>
-        <td>CURRENT_DATE</td>
-        <td>LOCAL</td>
-      </tr>
-      <tr>
         <td>TIMEZONE_MINUTE</td>
-        <td>CURRENT_TIME</td>
+        <td>LOCAL</td>
         <td>LOWER</td>
-        <td>TO</td>
-        <td>CURRENT_TIMESTAMP</td>
       </tr>
       <tr>
         <td>MATCH</td>
         <td>TRAILING</td>
-        <td>CURRENT_USER</td>
         <td>MAX</td>
-        <td>TRANSACTION</td>
-      </tr>
-      <tr>
-        <td>CURSOR</td>
         <td>MIN</td>
         <td>TRANSLATE</td>
-        <td>DATE</td>
-        <td>MINUTE</td>
       </tr>
       <tr>
-        <td>TRANSLATION</td>
-        <td>DEALLOCATE</td>
+        <td>DATE</td>
+        <td>MINUTE</td>
         <td>MONTH</td>
         <td>TRUE</td>
         <td>DEC</td>
       </tr>
       <tr>
         <td>NAMES</td>
-        <td>UNION</td>
         <td>DECIMAL</td>
-        <td>NATIONAL</td>
-        <td>UNIQUE</td>
-      </tr>
-      <tr>
-        <td>DECLARE</td>
         <td>NATURAL</td>
         <td>UNKNOWN</td>
-        <td>DEFAULT</td>
         <td>NCHAR</td>
       </tr>
       <tr>
-        <td>UPDATE</td>
         <td>DEFERRABLE</td>
         <td>NEXT</td>
         <td>UPPER</td>
         <td>DEFERRED</td>
-      </tr>
-      <tr>
         <td>NO</td>
+      </tr>
+      <tr>
         <td>USAGE</td>
-        <td>DELETE</td>
         <td>NONE</td>
-        <td>USER</td>
-      </tr>
-      <tr>
-        <td>DESC</td>
-        <td>NOT</td>
-        <td>USING</td>
         <td>DESCRIBE</td>
-        <td>NULL</td>
-      </tr>
-      <tr>
-        <td>VALUE</td>
-        <td>DESCRIPTOR</td>
-        <td>NULLIF</td>
-        <td>VALUES</td>
-        <td>DIAGNOSTICS</td>
-      </tr>
-      <tr>
         <td>NUMERIC</td>
         <td>VARCHAR</td>
+      </tr>
+      <tr>
         <td>DISCONNECT</td>
         <td>OCTET_LENGTH</td>
-        <td>VARYING</td>
-      </tr>
-      <tr>
-        <td>DISTINCT</td>
-        <td>OF</td>
-        <td>VIEW</td>
-        <td>DOMAIN</td>
-        <td>ON</td>
-      </tr>
-      <tr>
-        <td>WHEN</td>
-        <td>DOUBLE</td>
         <td>ONLY</td>
         <td>WHENEVER</td>
-        <td>DROP</td>
-      </tr>
-      <tr>
-        <td>OPEN</td>
-        <td>WHERE</td>
-        <td>ELSE</td>
-        <td>OPTION</td>
-        <td>WITH</td>
-      </tr>
-      <tr>
-        <td>END</td>
-        <td>OR</td>
         <td>WORK</td>
-        <td>END-EXEC</td>
-        <td>ORDER</td>
       </tr>
       <tr>
+        <td>END-EXEC</td>
+        <td>VALUE</td>
+        <td>DESCRIPTOR</td>
+        <td>DOMAIN</td>
         <td>WRITE</td>
-        <td>ESCAPE</td>
-        <td>OUTER</td>
-        <td>YEAR</td>
-        <td>EXCEPT</td>
       </tr>
       <tr>
         <td>OUTPUT</td>
         <td>ZONE</td>
-        <td></td>
+        <td>TRANSLATION</td>
         <td></td>
         <td></td>
       </tr>
@@ -1011,7 +851,7 @@ No SQL Server, eles podem ser **aritméticos, de comparação, lógicos, de conc
     ```
 
 <h3 align="center"> 
-    6. Comentários
+    6. Identificadores
 </h3>
 
 Um **identificador** é o nome dado a **objetos do banco de dados**, como tabelas, colunas, views, índices e procedimentos.
@@ -1020,7 +860,7 @@ Um **identificador** é o nome dado a **objetos do banco de dados**, como tabela
 - Pode conter **letras (A-Z, a-z)**, **dígitos (0-9)** e **underscore (_)**.
 - O **primeiro caractere** deve ser uma letra ou underscore, a menos que o identificador esteja delimitado por **colchetes []** ou **aspas duplas ""**.
 - **Comprimento máximo:** 128 caracteres.
-- **Palavras reservadas** não podem ser usadas diretamente; use colchetes ou aspas duplas para contorná-las.
+- **Palavras reservadas** não podem ser usadas diretamente; Usa-se colchetes para contorná-las.
 - **Sensibilidade a maiúsculas/minúsculas** depende do `collation` do banco de dados.
 
 #### Exemplos
