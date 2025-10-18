@@ -682,7 +682,7 @@ SELECT Nome, Idade -- Apenas as colunas Nome e Idade
 FROM Pessoas;
 
 /*
-    Sou apennas um comentário.
+    Sou apenas um comentário.
 */
 ```
 
