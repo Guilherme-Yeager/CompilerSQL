@@ -374,10 +374,6 @@ def t_INT(t):
     t.value = int(t.value)
     return t
 
-def t_newline(t):
-   r'\n+'
-   t.lexer.lineno += len(t.value)
-
 def t_COMMENT_LINE(t):
     r'--[^\n]*'
     pass
@@ -386,8 +382,16 @@ def t_COMMENT_MULTILINE(t):
     r'/\*(.|\n)*?\*/'
     pass
 
+collumn = -1
+
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
+    global collumn
+    collumn = t.lexer.lexpos - 1
+
 def t_error(t):
-   print("Illegal character '%s'" % t.value[0])
+   print("Illegal character '%s'" % t.value[0], ', line:', t.lineno, ', column: ', t.lexpos - collumn)
    t.lexer.skip(1)
 
 def main():
@@ -396,8 +400,7 @@ def main():
     lexer.input(file.read())
     print('\n# lexer output:\n')
     for tok in lexer:
-        print('type:', tok.type,', value:',tok.value,", line:", tok.lineno,", column: ", tok.lexpos + 1)
-
+        print('type:', tok.type, ', value:', tok.value, ', line:', tok.lineno, ', column: ', tok.lexpos - collumn)
     print()
 
 if __name__ == "__main__":
