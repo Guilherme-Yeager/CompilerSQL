@@ -17,7 +17,8 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
 
     command → truncate |
               insert |
-              select
+              select |
+              create
 
     -- Truncate
 
@@ -74,7 +75,51 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     order'' → ASC |
               DESC |
               empty
+    
+    -- CREATE
+    
+    create → create_table
+        
+    create_table → CREATE TABLE object LPAREN columns_defs RPAREN table_options_opt
 
+    column_defs → column_def
+            | column_def COMMA column_defs
+
+    column_def → ID type column_nullability_opt column_identity_opt column_default_opt column_constraint_list_opt
+
+    column_nullability_opt → NOT NULL |
+                             NULL |
+                             empty    
+                
+    column_identity_opt → IDENTITY LPAREN INT COMMA INT RPAREN |
+                          empty
+
+    column_default_opt → DEFAULT literal |
+                         empty
+
+    column_constraint_list_opt → column_constraint column_constraint_list_opt |
+                                 empty
+
+    column_constraint → PRIMARY KEY |
+                        UNIQUE |                          
+                        CHECK LPAREN boolean_expression RPAREN |
+                        REFERENCES object FK_ref_columns_opt
+
+    fk_ref_columns_opt → LPAREN parameters RPAREN |
+                         emoty
+
+    table_options_opt → table_constraint_list_opt |
+                        empty
+
+    table_constraint → CONSTRAINT ID constraint_def |
+                       constraint_def
+    
+    constraint_def → PRIMARY KEY LPARENT parameters RPAREN |
+                     INIQUE LPAREN parameters RPAREN |
+                     FOREING KEY LPAREN parameters RPAREN REFERENCES object FK_ref_columns_opt |
+                     CHECK LPAREN boolean_expression RPAREN
+    
+    
     -- Booleana
 
     bool → bool OR bool' |
