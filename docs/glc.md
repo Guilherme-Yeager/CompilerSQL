@@ -13,7 +13,10 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     commands → command |
                command commands
 
-    command → truncate
+    command → truncate 
 
-    truncate → TRUNCATE TABLE ID
+    truncate → TRUNCATE TABLE ID |
+               TRUNCATE TABLE SCHEMA "." ID
+
+
 ```
