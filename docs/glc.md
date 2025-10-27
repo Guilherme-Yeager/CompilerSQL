@@ -17,21 +17,21 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
 
     truncate → TRUNCATE TABLE object
 
-    insert → INSERT INTO object "(" parameters ")" VALUES "(" parameters ")" |
-             INSERT INTO object VALUES "(" parameters ")" |
-             INSERT INTO object "(" parameters ")" select |
+    insert → INSERT INTO object LPAREN parameters RPAREN VALUES LPAREN parameters RPAREN |
+             INSERT INTO object VALUES LPAREN parameters RPAREN |
+             INSERT INTO object LPAREN parameters RPAREN select |
              INSERT INTO object DEFAULT VALUES
 
-    parameters → expression "," parameters | expression
+    parameters → expression COMMA parameters | expression
 
     expression → ID |
                  NUM
 
-    semicolon → ";" | empty
+    semicolon → SEMICOLON | empty
 
     object → ID | 
-             ID "." ID | 
-             ID "." ID "." ID  
+             ID DOT ID | 
+             ID DOT ID DOT ID  
 ```
 
 - Um ojeto em um banco de dados pode ser referenciado através de um "identificador",
