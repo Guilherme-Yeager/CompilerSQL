@@ -25,7 +25,9 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     parameters → expression COMMA parameters | expression
 
     expression → ID |
-                 NUM
+                 INT |
+                 FLOAT |
+                 STRING
 
     semicolon → SEMICOLON | empty
 
