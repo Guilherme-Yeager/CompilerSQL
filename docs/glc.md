@@ -7,7 +7,8 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
 ```
     -- Regras iniciais
 
-    script → commands | empty
+    script → commands | 
+             empty
 
     commands → command semicolon |
                command commands
@@ -31,18 +32,14 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     
     -- Select
 
-    select → SELECT TIMES FROM object alias where |
-             SELECT modifier columns FROM object alias where |
+    select → SELECT TIMES FROM object alias where group order |
+             SELECT modifier columns FROM object alias where group order
              
-
     where → WHERE bool |
             empty
 
     columns → ID DOT ID alias columns' |
-              ID alias columns' |
-              INT alias columns' |
-              FLOAT alias columns' |
-              STRING alias columns'
+              expression alias columns'
 
     columns' → COMMA columns |
                empty
@@ -61,6 +58,22 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     
     ties → WITH TIES |
            empty
+
+    group → GROUP BY columns having |
+            empty
+
+    having → HAVING bool |
+             empty
+    
+    order → ORDER BY order' |
+            empty
+    
+    order' → bool order'' COMMA  order' |
+             bool order''
+
+    order'' → ASC |
+              DESC |
+              empty
 
     -- Booleana
 
@@ -105,7 +118,14 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
              FLOAT |
              VARCHAR |
              CHAR |
+             TIMES |
+             call |
              LPAREN expression RPAREN
+
+    -- Chamadas de Funções
+   
+    call → ID LPAREN parameters RPAREN |
+           ID LPAREN  RPAREN
 
     -- Outros
     
@@ -139,7 +159,8 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
 
     empty → ε
 
-    semicolon → SEMICOLON | empty
+    semicolon → SEMICOLON |
+                empty
 
     object → ID | 
              ID DOT ID | 
