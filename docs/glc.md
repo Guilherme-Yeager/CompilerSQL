@@ -18,7 +18,8 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     command → truncate |
               insert |
               select |
-              create
+              create |
+              delete
 
     -- Truncate
 
@@ -120,11 +121,18 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
                      FOREING KEY LPAREN parameters RPAREN REFERENCES object FK_ref_columns_opt |
                      CHECK LPAREN boolean_expression RPAREN
 
-     --REGRA DO CREATE DATABASE
-        
+    --REGRA DO CREATE DATABASE
+
      create_database → CREATE DATABASE object database_options_opt
      database_options_opt → database_collation_opt | empty
      database_collation_opt
+
+    -- DELETE
+    
+    delete → DELETE FROM object where_opt
+
+    where_opt → WHERE boolean_expression |
+                empty 
     
     -- Booleana
 
