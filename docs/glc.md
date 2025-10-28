@@ -19,7 +19,8 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
               insert |
               select |
               create |
-              delete
+              delete |
+              drop
 
     -- Truncate
 
@@ -80,7 +81,8 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     -- Create
     
     create → create_table |
-             create_database
+             create_database |
+             create_view
         
     create_table → CREATE TABLE object LPAREN columns_defs RPAREN table_options_opt
 
@@ -124,8 +126,22 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     --REGRA DO CREATE DATABASE
 
      create_database → CREATE DATABASE object database_options_opt
+     
      database_options_opt → database_collation_opt | empty
+     
      database_collation_opt
+
+    --REGRA DO CREATE VIEW
+
+     create_view → CREATE VIEW object AS select_stms
+
+     select_stms → SELECT select_list FROM object where_opt
+
+     select_list → ASTERISK |
+                   id_list
+
+     id_list → ID |
+               ID COMMA id_list               
 
     -- DELETE
     
@@ -133,6 +149,22 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
 
     where_opt → WHERE boolean_expression |
                 empty 
+
+    -- DROP
+
+     drop → DROP drop_type object
+
+     drop_type → TABLE |
+                 DATABASE |
+                 PROCEDURE |
+                 FUNCTION |
+                 TRIGGER |
+                 VIEW |
+                 INDEX |
+                 ROLE
+                      
+
+     drop → IF EXISTS drop_type object       
     
     -- Booleana
 
