@@ -20,7 +20,8 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
               select |
               create |
               delete |
-              drop
+              drop   |
+              update
 
     -- Truncate
 
@@ -164,7 +165,16 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
                  ROLE
                       
 
-     drop → IF EXISTS drop_type object       
+     drop → IF EXISTS drop_type object  
+
+    -- UPDATE
+
+     update → UPDATE object SET set_list where_opt
+
+     set_list → setitem |
+                set_item COMMA set_list
+
+     ser_item → ID EQUAL expression                  
     
     -- Booleana
 
