@@ -78,7 +78,8 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     
     -- Create
     
-    create → create_table
+    create → create_table |
+             create_database
         
     create_table → CREATE TABLE object LPAREN columns_defs RPAREN table_options_opt
 
@@ -118,6 +119,12 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
                      INIQUE LPAREN parameters RPAREN |
                      FOREING KEY LPAREN parameters RPAREN REFERENCES object FK_ref_columns_opt |
                      CHECK LPAREN boolean_expression RPAREN
+
+     --REGRA DO CREATE DATABASE
+        
+     create_database → CREATE DATABASE object database_options_opt
+     database_options_opt → database_collation_opt | empty
+     database_collation_opt
     
     -- Booleana
 
