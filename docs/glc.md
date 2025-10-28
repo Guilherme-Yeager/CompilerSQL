@@ -76,14 +76,14 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
               DESC |
               empty
     
-    -- CREATE
+    -- Create
     
     create → create_table
         
     create_table → CREATE TABLE object LPAREN columns_defs RPAREN table_options_opt
 
-    column_defs → column_def
-            | column_def COMMA column_defs
+    column_defs → column_def |
+                  column_def COMMA column_defs
 
     column_def → ID type column_nullability_opt column_identity_opt column_default_opt column_constraint_list_opt
 
@@ -106,7 +106,7 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
                         REFERENCES object FK_ref_columns_opt
 
     fk_ref_columns_opt → LPAREN parameters RPAREN |
-                         emoty
+                         empty
 
     table_options_opt → table_constraint_list_opt |
                         empty
@@ -118,7 +118,6 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
                      INIQUE LPAREN parameters RPAREN |
                      FOREING KEY LPAREN parameters RPAREN REFERENCES object FK_ref_columns_opt |
                      CHECK LPAREN boolean_expression RPAREN
-    
     
     -- Booleana
 
