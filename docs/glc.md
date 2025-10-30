@@ -124,34 +124,22 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
                      FOREING KEY LPAREN parameters RPAREN REFERENCES object FK_ref_columns_opt |
                      CHECK LPAREN boolean_expression RPAREN
 
-    --REGRA DO CREATE DATABASE
+    -- Create Database
 
      create_database → CREATE DATABASE object database_options_opt
      
-     database_options_opt → database_collation_opt | empty
+     database_options_opt → database_collation_opt |
+                            empty
      
-     database_collation_opt
+    -- Create View
 
-    --REGRA DO CREATE VIEW
+     create_view → CREATE VIEW object AS select             
 
-     create_view → CREATE VIEW object AS select_stms
-
-     select_stms → SELECT select_list FROM object where_opt
-
-     select_list → ASTERISK |
-                   id_list
-
-     id_list → ID |
-               ID COMMA id_list               
-
-    -- DELETE
+    -- Delete
     
-    delete → DELETE FROM object where_opt
+    delete → DELETE FROM object where
 
-    where_opt → WHERE boolean_expression |
-                empty 
-
-    -- DROP
+    -- Drop
 
      drop → DROP drop_type object
 
@@ -163,15 +151,12 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
                  VIEW |
                  INDEX |
                  ROLE
-                      
 
-     drop → IF EXISTS drop_type object  
+    -- Update
 
-    -- UPDATE
+     update → UPDATE object SET set_list where
 
-     update → UPDATE object SET set_list where_opt
-
-     set_list → setitem |
+     set_list → set_item |
                 set_item COMMA set_list
 
      ser_item → ID EQUAL expression                  
