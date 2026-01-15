@@ -31,13 +31,12 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
 
     insert → INSERT INTO object LPAREN parameters RPAREN VALUES LPAREN parameters RPAREN |
              INSERT INTO object VALUES LPAREN parameters RPAREN |
-             INSERT INTO object LPAREN parameters RPAREN select |
              INSERT INTO object DEFAULT VALUES
     
     -- Select
 
-    select → SELECT TIMES FROM object alias where group order |
-             SELECT modifier columns FROM object alias where group order
+    select → SELECT TIMES FROM object |
+             SELECT columns FROM object
              
     where → WHERE bool |
             empty
@@ -85,7 +84,7 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
              create_database |
              create_view
         
-    create_table → CREATE TABLE object LPAREN columns_defs RPAREN table_options_opt
+    create_table → CREATE TABLE object LPAREN columns_defs RPAREN
 
     column_defs → column_def |
                   column_def COMMA column_defs
@@ -126,31 +125,21 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
 
     -- Create Database
 
-     create_database → CREATE DATABASE object database_options_opt
+     create_database → CREATE DATABASE object
      
      database_options_opt → database_collation_opt |
-                            empty
-     
-    -- Create View
-
-     create_view → CREATE VIEW object AS select             
+                            empty            
 
     -- Delete
     
-    delete → DELETE FROM object where
+    delete → DELETE FROM object
 
     -- Drop
 
      drop → DROP drop_type object
 
      drop_type → TABLE |
-                 DATABASE |
-                 PROCEDURE |
-                 FUNCTION |
-                 TRIGGER |
-                 VIEW |
-                 INDEX |
-                 ROLE
+                 DATABASE
 
     -- Update
 
@@ -205,42 +194,13 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
              VARCHAR |
              CHAR |
              TIMES |
-             call |
              LPAREN expression RPAREN
-
-    -- Chamadas de Funções
-   
-    call → ID LPAREN parameters RPAREN |
-           ID LPAREN  RPAREN
 
     -- Outros
     
-    type → TINYINT |
-           SMALLINT |
-           INT |
-           BIGINT |
-           BIT |
-           DECIMAL LPAREN INT COMMA INT RPAREN |
-           NUMERIC LPAREN INT COMMA INT RPAREN |
-           MONEY |
-           SMALLMONEY |
-           FLOAT |
-           REAL |
-           DATE |
-           TIME |
-           DATETIME2 |
-           DATETIMEOFFSET |
-           DATETIME |
-           SMALLDATETIME |
-           CHAR LPAREN INT RPAREN |
-           VARCHAR LPAREN INT RPAREN |
-           NCHAR LPAREN INT RPAREN |
-           NVARCHAR LPAREN INT RPAREN |
-           BINARY LPAREN INT RPAREN |
-           VARBINARY LPAREN INT RPAREN |
-           JSON |
-           VECTOR
-
+    type → INT |
+           STRING
+           
     parameters → expression COMMA parameters | expression
 
     empty → ε
