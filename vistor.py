@@ -1,4 +1,4 @@
-from abstractVisitor import AbstractVisitor
+from abstract_visitor import AbstractVisitor
 from sintatico import *
 
 class Visitor(AbstractVisitor):
