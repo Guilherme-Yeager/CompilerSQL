@@ -5,13 +5,10 @@
 Terminais são representados pelos elementos cuja grafia está em maiúsculo, bem como pelos símbolos que estão entre aspas duplas (").
 
 ```
-    -- Regras iniciais
+    -- Regras inicial
 
-    script → commands | 
-             empty
-
-    commands → command semicolon |
-               command commands
+    script → empty |
+             command SEMICOLON script
 
     -- Comandos:
 
@@ -158,11 +155,6 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
            STRING
            
     parameters → expression COMMA parameters | expression
-
-    empty → ε
-
-    semicolon → SEMICOLON |
-                empty
 
     object → ID | 
              ID DOT ID | 
