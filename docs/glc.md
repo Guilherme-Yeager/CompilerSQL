@@ -41,55 +41,23 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     where → WHERE bool |
             empty
 
-    columns → ID DOT ID alias columns' |
-              expression alias columns'
+    columns → ID DOT ID columns' |
+              expression columns'
 
     columns' → COMMA columns |
                empty
-
-    alias → AS ID |
-            ID |
-            empty
-
-    modifier → DISTINCT |
-               TOP INT percent ties |
-               ALL |
-               empty
-
-    percent → INT |
-              empty
-    
-    ties → WITH TIES |
-           empty
-
-    group → GROUP BY columns having |
-            empty
-
-    having → HAVING bool |
-             empty
-    
-    order → ORDER BY order' |
-            empty
-    
-    order' → bool order'' COMMA  order' |
-             bool order''
-
-    order'' → ASC |
-              DESC |
-              empty
     
     -- Create
     
     create → create_table |
              create_database |
-             create_view
         
     create_table → CREATE TABLE object LPAREN columns_defs RPAREN
 
     column_defs → column_def |
                   column_def COMMA column_defs
 
-    column_def → ID type column_nullability_opt column_identity_opt column_default_opt column_constraint_list_opt
+    column_def → ID type column_nullability_opt column_identity_opt column_constraint_list_opt
 
     column_nullability_opt → NOT NULL |
                              NULL |
@@ -98,38 +66,16 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     column_identity_opt → IDENTITY LPAREN INT COMMA INT RPAREN |
                           empty
 
-    column_default_opt → DEFAULT literal |
-                         empty
-
     column_constraint_list_opt → column_constraint column_constraint_list_opt |
                                  empty
 
     column_constraint → PRIMARY KEY |
-                        UNIQUE |                          
-                        CHECK LPAREN boolean_expression RPAREN |
-                        REFERENCES object FK_ref_columns_opt
-
-    fk_ref_columns_opt → LPAREN parameters RPAREN |
-                         empty
-
-    table_options_opt → table_constraint_list_opt |
-                        empty
-
-    table_constraint → CONSTRAINT ID constraint_def |
-                       constraint_def
-    
-    constraint_def → PRIMARY KEY LPARENT parameters RPAREN |
-                     INIQUE LPAREN parameters RPAREN |
-                     FOREING KEY LPAREN parameters RPAREN REFERENCES object FK_ref_columns_opt |
-                     CHECK LPAREN boolean_expression RPAREN
+                        UNIQUE
 
     -- Create Database
 
      create_database → CREATE DATABASE object
-     
-     database_options_opt → database_collation_opt |
-                            empty            
-
+               
     -- Delete
     
     delete → DELETE FROM object
@@ -149,7 +95,22 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
                 set_item COMMA set_list
 
      ser_item → ID EQUAL expression                  
-    
+
+    -- Expressão
+
+    expression → expression_ari |
+                 bool
+                 
+    -- Aritméticas
+
+    expression_ari → expression_ari PLUS term |
+                     expression_ari MINUS term |
+                     term
+
+    term → term TIMES factor |
+           term DIVIDE factor |
+           factor 
+
     -- Booleana
 
     bool → bool OR bool' |
@@ -164,36 +125,31 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
 
     -- Comparações
 
-    comparison → expression operator expression 
+    comparison → comparison comp_op comparison' |
+                 comparison'
 
-    operator → EQUAL |
-               NOT_EQUAL |
-               LESS_THAN |
-               LESS_EQUAL |
-               GREATER_THAN |
-               GREATER_EQUAL |
-               BETWEEN |
-               IN |
-               LIKE |
-               IS NULL |
-               IS NOT NULL
+    comparison' → comparison' eq_op comparison'' |
+                  comparison''
+
+    comparison'' → expression_ari null_op |
+                   expression_ari
+
+    null_op → IS_NULL |
+              IS_NOT_NULL
     
-    -- Aritméticas
-
-    expression → expression PLUS term |
-                 expression MINUS term |
-                 term
-
-    term → term TIMES factor |
-           term DIVIDE factor |
-           factor
+    eq_op → EQUAL |
+            NOT_EQUAL
     
+    comp_op → LESS_THAN |
+             LESS_EQUAL |
+             GREATER_THAN |
+             GREATER_EQUAL
+    
+    -- Fator
+
     factor → ID |
              INT |
-             FLOAT |
-             VARCHAR |
-             CHAR |
-             TIMES |
+             STRING |
              LPAREN expression RPAREN
 
     -- Outros
