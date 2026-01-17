@@ -117,7 +117,7 @@ def t_error(t):
    t.lexer.skip(1)
 
 def main():
-    file = open("compile/test/test.sql", "r")
+    file = open("compiler/test/test.sql", "r")
     lexer = lex.lex()
     lexer.input(file.read())
     print('\n# lexer output:\n')

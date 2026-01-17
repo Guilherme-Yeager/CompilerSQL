@@ -1,5 +1,5 @@
-import compile.src.ast.sintaxe_abstrata as sa
-from compile.src.lexer.lexer import *
+import compiler.src.ast.sintaxe_abstrata as sa
+from compiler.src.lexer.lexer import *
 
 def p_script_empty(p):
     'script : '

@@ -1,10 +1,10 @@
 import ply.yacc as yacc
-from compile.src.visitor.abstract_visitor import AbstractVisitor
-from compile.src.parser.sintatico import *
+from compiler.src.visitor.abstract_visitor import AbstractVisitor
+from compiler.src.parser.sintatico import *
 
 class Visitor(AbstractVisitor):
 
-    def visitEmptyScript(self, empty_script):
+    def visitEmptyScript(self, _):
         return
 
     def visitCompoundScript(self, command):
@@ -22,7 +22,7 @@ class Visitor(AbstractVisitor):
         print(" </CreateDatabase>")
 
 def main():
-    file = open("compile/test/test.sql", "r")
+    file = open("compiler/test/test.sql", "r")
     lexer = lex.lex()
     lexer.input(file.read())
     parser = yacc.yacc()
