@@ -1,5 +1,6 @@
-from abstract_visitor import AbstractVisitor
-from sintatico import *
+import ply.yacc as yacc
+from compile.src.visitor.abstract_visitor import AbstractVisitor
+from compile.src.parser.sintatico import *
 
 class Visitor(AbstractVisitor):
 
@@ -21,7 +22,7 @@ class Visitor(AbstractVisitor):
         print(" </CreateDatabase>")
 
 def main():
-    file = open("test.sql", "r")
+    file = open("compile/test/test.sql", "r")
     lexer = lex.lex()
     lexer.input(file.read())
     parser = yacc.yacc()

@@ -1,6 +1,5 @@
-import ply.yacc as yacc
-from lexico import *
-import sintaxe_abstrata as sa
+import compile.src.ast.sintaxe_abstrata as sa
+from compile.src.lexer.lexer import *
 
 def p_script_empty(p):
     'script : '
