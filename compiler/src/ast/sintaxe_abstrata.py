@@ -40,6 +40,7 @@ class Command(metaclass=ABCMeta):
 '''
 
 class Truncate(Command):
+
     def __init__(self, table):
         self.table = table
 
@@ -51,8 +52,41 @@ class Truncate(Command):
 '''
 
 class CreateDatabase(Command):
+
     def __init__(self, database):
         self.database = database
 
     def accept(self, visitor):
         return visitor.visitCreateDatabase(self)
+    
+'''
+    Delete
+'''
+    
+class Delete(Command):
+
+    def __init__(self, table):
+        self.table = table
+
+    def accept(self, visitor):
+        return visitor.visitDelete(self)    
+    
+'''
+    Drop
+'''
+    
+class DropDatabase(Command):
+
+    def __init__(self, database):
+        self.database = database
+
+    def accept(self, visitor):
+        return visitor.visitDropDatabase(self)    
+
+class DropTable(Command):
+    def __init__(self, table):
+        self.table = table
+        
+    def accept(self, visitor):
+         return visitor.visitDropTable(self)        
+    
