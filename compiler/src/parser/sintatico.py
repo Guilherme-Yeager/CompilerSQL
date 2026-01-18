@@ -25,7 +25,14 @@ def p_command_delete(p):
 #     'command : DELETE FROM object WHERE expression' 
 #     p[0] = sa.Delete (p[3], p[5])
 
+def p_command_drop_database(p):
+    'command : DROP DATABASE object'
+    p[0] = sa.DropDatabase(p[3])
     
+def P_command_drop_table(p):
+    'command : DROP TABLE object'
+    p[0] = sa.DropTable(p[3])
+            
 
 # Outros
 

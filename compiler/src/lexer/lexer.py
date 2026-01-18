@@ -24,6 +24,7 @@ reserved = {
     "null": "NULL",
     "is": "IS",
     "int": "INT",
+    
 }
 
 

@@ -22,11 +22,20 @@ class Visitor(AbstractVisitor):
         print(" </CreateDatabase>")
     
     def visitDelete(self, delete):
-        print("<delete>") 
-        print(f" <Table>{delete.table}</Table>")
-         
-            
-        print("</Delete>")     
+        print("<Delete>") 
+        print(f"    <Table>{delete.table}</Table>")
+        print("</Delete>")   
+          
+
+    def visitDropDatabase(self, cmd):
+        print("<DropDatabase>")
+        print(f"    <Database>{cmd.databse}</Database")
+        print("</DropTable")
+        
+    def visitDropTable(self, cmd):
+        print("<DropTable")
+        print(f"    <Table>{cmd.table}</Table>")
+        print("</DropTable")    
 
 def main():
     file = open("compiler/test/test.sql", "r")

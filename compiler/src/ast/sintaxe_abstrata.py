@@ -61,15 +61,29 @@ class CreateDatabase(Command):
     Delete
 '''
     
- 
-class Delete(Command): 
+class Delete(Command):
     def __init__(self, table):
         self.table = table
-     
-        
+
     def accept(self, visitor):
         return visitor.visitDelete(self)    
     
+    '''
+    Drop
+    '''
+    
   
+class DropDatabase(Command):
+    def __init__(self, database):
+        self.database = database
 
+    def accept(self, visitor):
+        return visitor.visitDropDatabase(self)    
+
+class DropTable(Command):
+    def __init__(self, table):
+         self.table.table
+        
+    def accept(self, visitor):
+         return visitor.visitDropTable(self)        
     
