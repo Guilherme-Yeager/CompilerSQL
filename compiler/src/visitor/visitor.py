@@ -33,12 +33,12 @@ class Visitor(AbstractVisitor):
     def visitDropDatabase(self, cmd):
         print(f" <DropDatabase pos = {self.pos_command}>")
         print(f"    <Database>{cmd.database}</Database>")
-        print(" </DropDatabase")
+        print(" </DropDatabase>")
         
     def visitDropTable(self, cmd):
         print(f" <DropTable pos = {self.pos_command}>")
         print(f"    <Table>{cmd.table}</Table>")
-        print(" </DropTable")    
+        print(" </DropTable>")    
 
 def main():
     file = open("compiler/test/test.sql", "r")
