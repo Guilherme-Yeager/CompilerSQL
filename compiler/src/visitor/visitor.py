@@ -20,6 +20,13 @@ class Visitor(AbstractVisitor):
         print(" <CreateDatabase>")
         print(f"    <Database>{command.database}</Database>")
         print(" </CreateDatabase>")
+    
+    def visitDelete(self, delete):
+        print("<delete>") 
+        print(f" <Table>{delete.table}</Table>")
+         
+            
+        print("</Delete>")     
 
 def main():
     file = open("compiler/test/test.sql", "r")

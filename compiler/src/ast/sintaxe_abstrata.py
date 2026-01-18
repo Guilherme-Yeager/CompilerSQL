@@ -56,3 +56,20 @@ class CreateDatabase(Command):
 
     def accept(self, visitor):
         return visitor.visitCreateDatabase(self)
+    
+'''
+    Delete
+'''
+    
+ 
+class Delete(Command): 
+    def __init__(self, table):
+        self.table = table
+     
+        
+    def accept(self, visitor):
+        return visitor.visitDelete(self)    
+    
+  
+
+    

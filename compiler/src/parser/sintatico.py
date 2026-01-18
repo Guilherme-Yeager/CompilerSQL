@@ -17,6 +17,16 @@ def p_command_create_database(p):
     'command : CREATE DATABASE object'
     p[0] = sa.CreateDatabase(p[3])
 
+def p_command_delete(p):
+    'command : DELETE FROM object'
+    p[0] = sa.Delete (p[3])
+
+# # def p_command_delete_where(p): 
+#     'command : DELETE FROM object WHERE expression' 
+#     p[0] = sa.Delete (p[3], p[5])
+
+    
+
 # Outros
 
 def p_type(p):
