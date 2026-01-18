@@ -29,7 +29,7 @@ def p_command_drop_database(p):
     'command : DROP DATABASE object'
     p[0] = sa.DropDatabase(p[3])
     
-def P_command_drop_table(p):
+def p_command_drop_table(p):
     'command : DROP TABLE object'
     p[0] = sa.DropTable(p[3])
             
