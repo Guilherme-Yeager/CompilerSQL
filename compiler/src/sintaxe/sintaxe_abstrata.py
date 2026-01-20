@@ -5,16 +5,19 @@ from abc import ABCMeta
     Script
 '''
 
+
 class Script(metaclass=ABCMeta):
 
     @abstractmethod
     def accept(self, visitor):
         pass
 
+
 class EmptyScript(Script):
 
     def accept(self, visitor):
         return visitor.visitEmptyScript(self)
+
 
 class CompoundScript(Script):
 
@@ -25,9 +28,11 @@ class CompoundScript(Script):
     def accept(self, visitor):
         return visitor.visitCompoundScript(self)
 
+
 '''
     Command
 '''
+
 
 class Command(metaclass=ABCMeta):
 
@@ -35,9 +40,11 @@ class Command(metaclass=ABCMeta):
     def accept(self, visitor):
         pass
 
+
 '''
     Truncate
 '''
+
 
 class Truncate(Command):
 
@@ -47,9 +54,11 @@ class Truncate(Command):
     def accept(self, visitor):
         return visitor.visitTruncate(self)
 
+
 '''
     Create Database
 '''
+
 
 class CreateDatabase(Command):
 
@@ -58,11 +67,13 @@ class CreateDatabase(Command):
 
     def accept(self, visitor):
         return visitor.visitCreateDatabase(self)
-    
+
+
 '''
     Delete
 '''
-    
+
+
 class Delete(Command):
 
     def __init__(self, table, where=None):
@@ -70,31 +81,56 @@ class Delete(Command):
         self.where = where
 
     def accept(self, visitor):
-        return visitor.visitDelete(self)    
-    
+        return visitor.visitDelete(self)
+
+
 '''
     Drop
 '''
-    
+
+
 class DropDatabase(Command):
 
     def __init__(self, database):
         self.database = database
 
     def accept(self, visitor):
-        return visitor.visitDropDatabase(self)    
+        return visitor.visitDropDatabase(self)
+
 
 class DropTable(Command):
     def __init__(self, table):
         self.table = table
-        
+
     def accept(self, visitor):
-         return visitor.visitDropTable(self)        
-    
+        return visitor.visitDropTable(self)
+
+
+'''
+    Select
+'''
+
+
+class SelectAll(Command):
+
+    def accept(self, visitor):
+        return visitor.visitSelectAll(self)
+
+
+class Select(Command):
+    def __init__(self, columns, table, where=None):
+        self.columns = columns
+        self.table = table
+        self.where = where
+
+    def accept(self, visitor):
+        return visitor.visitSelect(self)
+
 
 '''
     Expressão
 '''
+
 
 class Expression(metaclass=ABCMeta):
 
@@ -102,9 +138,12 @@ class Expression(metaclass=ABCMeta):
     def accept(self, visitor):
         pass
 
+
 '''
     Aritmética
 '''
+
+
 class ExpressionAri(Expression):
 
     def __init__(self, left, operator, right):
@@ -115,9 +154,11 @@ class ExpressionAri(Expression):
     def accept(self, visitor):
         return visitor.visitExpressionAri(self)
 
+
 '''
     Booleanas 
 '''
+
 
 class ExpressionBool(Expression):
 
@@ -129,6 +170,7 @@ class ExpressionBool(Expression):
     def accept(self, visitor):
         return visitor.visitExpressionBool(self)
 
+
 class ExpressionNot(Expression):
 
     def __init__(self, expression):
@@ -136,7 +178,8 @@ class ExpressionNot(Expression):
 
     def accept(self, visitor):
         return visitor.visitExpressionNot(self)
-    
+
+
 class ExpressionComparison(Expression):
 
     def __init__(self, left, operator, right):
@@ -146,7 +189,8 @@ class ExpressionComparison(Expression):
 
     def accept(self, visitor):
         return visitor.visitExpressionComparison(self)
-    
+
+
 class ExpressionNullCheck(Expression):
 
     def __init__(self, expression, is_not=False):
@@ -156,13 +200,17 @@ class ExpressionNullCheck(Expression):
     def accept(self, visitor):
         return visitor.visitExpressionNullCheck(self)
 
+
 '''
     Fator
 '''
 
+
 class FactorId(Expression):
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, id_name, schema=None, db=None):
+        self.name = id_name
+        self.schema = schema
+        self.db = db
 
     def accept(self, visitor):
         return visitor.visitFactorId(self)
@@ -175,6 +223,7 @@ class FactorInt(Expression):
     def accept(self, visitor):
         return visitor.visitFactorInt(self)
 
+
 class FactorString(Expression):
     def __init__(self, value):
         self.value = value
@@ -182,9 +231,23 @@ class FactorString(Expression):
     def accept(self, visitor):
         return visitor.visitFactorString(self)
 
+
 class FactorGrouping(Expression):
     def __init__(self, expression):
         self.expression = expression
 
     def accept(self, visitor):
         return visitor.visitFactorGrouping(self)
+
+
+'''
+    Outros
+'''
+
+
+class Columns(Expression):
+    def __init__(self, columns_list):
+        self.columns_list = columns_list
+
+    def accept(self, visitor):
+        return visitor.visitColumns(self)

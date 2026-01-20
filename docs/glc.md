@@ -34,15 +34,10 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
 
     select → SELECT TIMES FROM object |
              SELECT columns FROM object
-             
-    where → WHERE bool |
-            empty
 
-    columns → ID DOT ID columns' |
-              expression columns'
 
-    columns' → COMMA columns |
-               empty
+    columns → columns COMMA object |
+              object
     
     -- Create
     
@@ -75,7 +70,8 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
                
     -- Delete
     
-    delete → DELETE FROM object
+    delete → DELETE FROM object |
+             DELETE FROM object WHERE expression
 
     -- Drop
 
@@ -86,7 +82,7 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
 
     -- Update
 
-     update → UPDATE object SET set_list where
+     update → UPDATE object SET set_list expression
 
      set_list → set_item |
                 set_item COMMA set_list
@@ -106,7 +102,7 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
 
     term → term TIMES factor |
            term DIVIDE factor |
-           factor 
+           factor
 
     -- Booleana
 

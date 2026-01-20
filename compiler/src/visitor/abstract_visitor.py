@@ -1,5 +1,6 @@
 from abc import abstractmethod, ABCMeta
 
+
 class AbstractVisitor(metaclass=ABCMeta):
 
     @abstractmethod
@@ -31,6 +32,14 @@ class AbstractVisitor(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def visitSelect(self, select_command):
+        pass
+
+    @abstractmethod
+    def visitSelectAll(self, select_all):
+        pass
+
+    @abstractmethod
     def visitExpressionComparison(self, expression):
         pass
 
@@ -41,7 +50,7 @@ class AbstractVisitor(metaclass=ABCMeta):
     @abstractmethod
     def visitFactorInt(self, number):
         pass
-    
+
     @abstractmethod
     def visitFactorString(self, string):
         pass
