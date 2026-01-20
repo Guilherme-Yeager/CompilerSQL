@@ -26,18 +26,22 @@ class Visitor(AbstractVisitor):
         command.script.accept(self)
 
     def visitTruncate(self, command):
+        self.inc_tab()
         print(f"{self.indent()}<Truncate pos = {self.pos_command}>")
         self.inc_tab()
         print(f"{self.indent()}<Table>{command.table}</Table>")
         self.dec_tab()
         print(f"{self.indent()}</Truncate>")
+        self.dec_tab()
 
     def visitCreateDatabase(self, command):
+        self.inc_tab()
         print(f"{self.indent()}<CreateDatabase pos = {self.pos_command}>")
         self.inc_tab()
         print(f"{self.indent()}<Database>{command.database}</Database>")
         self.dec_tab()
         print(f"{self.indent()}</CreateDatabase>")
+        self.dec_tab()
     
     def visitDelete(self, delete):
         self.inc_tab()
@@ -50,13 +54,16 @@ class Visitor(AbstractVisitor):
             print(f"{self.indent()}</Where>")
         self.dec_tab()
         print(f"{self.indent()}</Delete>")
+        self.dec_tab()
           
     def visitDropDatabase(self, cmd):
+        self.inc_tab()
         print(f"{self.indent()}<DropDatabase pos = {self.pos_command}>")
         self.inc_tab()
         print(f"{self.indent()}<Database>{cmd.database}</Database>")
         self.dec_tab()
         print(f"{self.indent()}</DropDatabase>")
+        self.dec_tab()
         
     def visitDropTable(self, cmd):
         print(f"{self.indent()}<DropTable pos = {self.pos_command}>")
