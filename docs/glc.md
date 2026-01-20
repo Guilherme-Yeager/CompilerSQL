@@ -128,8 +128,8 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     comparison' → comparison' eq_op comparison'' |
                   comparison''
 
-    comparison'' → expression_ari null_op |
-                   expression_ari
+    comparison'' → factor null_op |
+                   factor
 
     null_op → IS_NULL |
               IS_NOT_NULL
@@ -138,9 +138,9 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
             NOT_EQUAL
     
     comp_op → LESS_THAN |
-             LESS_EQUAL |
-             GREATER_THAN |
-             GREATER_EQUAL
+              LESS_EQUAL |
+              GREATER_THAN |
+              GREATER_EQUAL
     
     -- Fator
 

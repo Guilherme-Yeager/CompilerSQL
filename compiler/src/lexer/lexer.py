@@ -24,7 +24,9 @@ reserved = {
     "null": "NULL",
     "is": "IS",
     "int": "INT",
-    
+    "or": "OR",
+    "and": "AND",
+    "not": "NOT",
 }
 
 
@@ -86,6 +88,7 @@ t_STRING = r"'[^']*(''[^']*)*'"
 t_COMMA = r','
 t_SEMICOLON = r';'
 t_DOT = r'\.'
+
 
 def t_ID(t):
     r'[A-Za-z_][A-Za-z0-9_]*|\[[^\]]+\]'

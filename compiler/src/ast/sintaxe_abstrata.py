@@ -65,8 +65,9 @@ class CreateDatabase(Command):
     
 class Delete(Command):
 
-    def __init__(self, table):
+    def __init__(self, table, where=None):
         self.table = table
+        self.where = where
 
     def accept(self, visitor):
         return visitor.visitDelete(self)    
@@ -90,3 +91,100 @@ class DropTable(Command):
     def accept(self, visitor):
          return visitor.visitDropTable(self)        
     
+
+'''
+    Expressão
+'''
+
+class Expression(metaclass=ABCMeta):
+
+    @abstractmethod
+    def accept(self, visitor):
+        pass
+
+'''
+    Aritmética
+'''
+class ExpressionAri(Expression):
+
+    def __init__(self, left, operator, right):
+        self.left = left
+        self.operator = operator
+        self.right = right
+
+    def accept(self, visitor):
+        return visitor.visitExpressionAri(self)
+
+'''
+    Booleanas 
+'''
+
+class ExpressionBool(Expression):
+
+    def __init__(self, left, operator, right):
+        self.left = left
+        self.operator = operator
+        self.right = right
+
+    def accept(self, visitor):
+        return visitor.visitExpressionBool(self)
+
+class ExpressionNot(Expression):
+
+    def __init__(self, expression):
+        self.expression = expression
+
+    def accept(self, visitor):
+        return visitor.visitExpressionNot(self)
+    
+class ExpressionComparison(Expression):
+
+    def __init__(self, left, operator, right):
+        self.left = left
+        self.operator = operator
+        self.right = right
+
+    def accept(self, visitor):
+        return visitor.visitExpressionComparison(self)
+    
+class ExpressionNullCheck(Expression):
+
+    def __init__(self, expression, is_not=False):
+        self.expression = expression
+        self.is_not = is_not
+
+    def accept(self, visitor):
+        return visitor.visitExpressionNullCheck(self)
+
+'''
+    Fator
+'''
+
+class FactorId(Expression):
+    def __init__(self, name):
+        self.name = name
+
+    def accept(self, visitor):
+        return visitor.visitFactorId(self)
+
+
+class FactorInt(Expression):
+    def __init__(self, value):
+        self.value = value
+
+    def accept(self, visitor):
+        return visitor.visitFactorInt(self)
+
+class FactorString(Expression):
+    def __init__(self, value):
+        self.value = value
+
+    def accept(self, visitor):
+        return visitor.visitFactorString(self)
+
+class FactorGrouping(Expression):
+    def __init__(self, expression):
+        self.expression = expression
+
+    def accept(self, visitor):
+        return visitor.visitFactorGrouping(self)
