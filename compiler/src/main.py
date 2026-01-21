@@ -3,19 +3,19 @@ import compiler.src.visitor.visitor as vs
 import compiler.src.lexer.lexer as lx
 
 
-def executar(opcao_selecionada, texto_sql):
-    print(opcao_selecionada)
-    if opcao_selecionada == 1:
-        lx.main(texto_sql.strip())
+def executar(opcao_analisador, texto_sql, mode_output):
+    if opcao_analisador == 1:
+        lx.main(texto_sql.strip(), mode_output)
     else:
-        vs.main(texto_sql.strip())
+        vs.main(texto_sql.strip(), mode_output)
 
 
 class Screen():
 
     def __init__(self):
         self.janela = tk.Tk()
-        self.opcao_selecionada = tk.IntVar(value=1)
+        self.opcao_analisador = tk.IntVar(value=1)
+        self.opcao_saida = tk.IntVar(value=1)
         self.caixa_texto = None
         self.setup_screen()
 
@@ -31,20 +31,33 @@ class Screen():
         self.add_widgets()
 
     def add_menu(self):
-        self.opcao_selecionada = tk.IntVar(value=1)
+        self.opcao_analisador = tk.IntVar(value=1)
         menu = tk.Menu(self.janela)
-        sub_menu = tk.Menu(menu, tearoff=0)
-        sub_menu.add_radiobutton(
+        menu_analisador = tk.Menu(menu, tearoff=0)
+        menu_analisador.add_radiobutton(
             label="Léxico",
-            variable=self.opcao_selecionada,
+            variable=self.opcao_analisador,
             value=1
         )
-        sub_menu.add_radiobutton(
+        menu_analisador.add_radiobutton(
             label="Sintático",
-            variable=self.opcao_selecionada,
+            variable=self.opcao_analisador,
             value=2
         )
-        menu.add_cascade(label="Menu", menu=sub_menu)
+        menu.add_cascade(label="Analisador", menu=menu_analisador)
+
+        menu_saida = tk.Menu(menu, tearoff=0)
+        menu_saida.add_radiobutton(
+            label="SQL",
+            variable=self.opcao_saida,
+            value=1
+        )
+        menu_saida.add_radiobutton(
+            label="XML",
+            variable=self.opcao_saida,
+            value=2
+        )
+        menu.add_cascade(label="Saída", menu=menu_saida)
         self.janela.config(menu=menu)
 
     def add_widgets(self):
@@ -52,7 +65,7 @@ class Screen():
                                    height=13, font=("Consolas", 14))
         self.caixa_texto.pack(padx=20, pady=(10, 5))
 
-        botao = tk.Button(self.janela, text="Executar", command=lambda: executar(self.opcao_selecionada.get(), self.caixa_texto.get("1.0", tk.END)), font=("Arial", 10),
+        botao = tk.Button(self.janela, text="Executar", command=lambda: executar(self.opcao_analisador.get(), self.caixa_texto.get("1.0", tk.END), self.opcao_saida.get()), font=("Arial", 10),
                           bg="#0400FF", fg="white", width=10, height=1)
         botao.pack(pady=(5, 5))
 
