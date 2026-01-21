@@ -162,17 +162,30 @@ class Visitor(AbstractVisitor):
         print(f"{self.indent()}</ExpressionNullCheck>")
         self.dec_tab()
         
+    
     def visitInsert(self, insert):
-        print("<Insert")
-        print(f"    <Table>{insert.table}</Table>") 
-        print(" <Values>")
-        for v in insert.values:
-            if isinstance(v, str):
-                print(f"    <Values>'{v}'</Value")
-            else:
-                print(f"    <Values>{v}</Values>") 
-        print(" <Values>")
-        print("</Insert") 
+        self.inc_tab()
+        print(f"{self.indent()}<Insert pos = {self.pos_command}>")
+
+        self.inc_tab()
+        print(f"{self.indent()}<Table>")
+        insert.table.accept(self)
+        print(f"{self.indent()}</Table>")
+
+        print(f"{self.indent()}<Parameters>")
+        self.inc_tab()
+        for param in insert.parameters:
+            print(f"{self.indent()}<Parameter>")
+            self.inc_tab()
+            param.accept(self)
+            self.dec_tab()
+            print(f"{self.indent()}</Parameter>")
+        self.dec_tab()
+        print(f"{self.indent()}</Parameters>")
+
+        self.dec_tab()
+        print(f"{self.indent()}</Insert>")
+        self.dec_tab()
 
 
 def main(text_sql=None):

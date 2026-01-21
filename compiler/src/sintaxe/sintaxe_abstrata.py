@@ -245,9 +245,9 @@ class FactorGrouping(Expression):
 '''     
     
 class Insert(Command):
-    def __init__(self, table, values):
+    def __init__(self, table, parameteres):
             self.table = table
-            self.values = values
+            self.parameteres = parameteres
             
     def accept(self, visitor):
          return visitor. visitInsert(self)

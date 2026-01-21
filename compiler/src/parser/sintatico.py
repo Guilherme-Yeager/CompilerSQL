@@ -185,28 +185,18 @@ def p_factor_grouping(p):
 # INSERT
 
 def p_command_insert(p):
-    'command : INSERT INTO object VALUES LPAREN value_list RPAREN'
+    'command : INSERT INTO object VALUES LPAREN parameters RPAREN'
     p[0] = sa.Insert(p[3], p[6])
     
-def p_value_list_single(p):
-    'value_list : value'
+def p_parameters_single(p):
+    'parameters : expression'
     p[0] = [p[1]]
     
-def p_value_list_multiple(p):
-    'value_list : values_list COMMA value'
+def p_parameters_multiple(p):
+    'parameters : parameters COMMA expression'
     p[0] = p[1] + [p[3]]
 
-def p_value_number(p):
-    'value : NUMBER'
-    p[0] = p[1]
-    
-def p_value_id(p):
-    'value : ID'
-    p[0] + p[1] 
-    
-def p_value_string(p):
-    'value : STRING'
-    p[0] =p[1]                
+      
 
 
 # Outros
