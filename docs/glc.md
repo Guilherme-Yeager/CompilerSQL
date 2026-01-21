@@ -42,7 +42,7 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     -- Create
     
     create → create_table |
-             create_database |
+             create_database 
         
     create_table → CREATE TABLE object LPAREN columns_defs RPAREN
 

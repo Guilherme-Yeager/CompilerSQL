@@ -27,6 +27,8 @@ reserved = {
     "or": "OR",
     "and": "AND",
     "not": "NOT",
+    "number": "NUMBER",
+    
 }
 
 

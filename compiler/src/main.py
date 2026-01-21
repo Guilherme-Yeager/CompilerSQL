@@ -4,7 +4,6 @@ import compiler.src.lexer.lexer as lx
 
 
 def executar(opcao_selecionada, texto_sql):
-    print(opcao_selecionada)
     if opcao_selecionada == 1:
         lx.main(texto_sql.strip())
     else:

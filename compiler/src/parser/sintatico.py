@@ -181,6 +181,33 @@ def p_factor_string(p):
 def p_factor_grouping(p):
     'factor : LPAREN expression_ari RPAREN'
     p[0] = sa.FactorGrouping(p[2])
+    
+# INSERT
+
+def p_command_insert(p):
+    'command : INSERT INTO object VALUES LPAREN value_list RPAREN'
+    p[0] = sa.Insert(p[3], p[6])
+    
+def p_value_list_single(p):
+    'value_list : value'
+    p[0] = [p[1]]
+    
+def p_value_list_multiple(p):
+    'value_list : values_list COMMA value'
+    p[0] = p[1] + [p[3]]
+
+def p_value_number(p):
+    'value : NUMBER'
+    p[0] = p[1]
+    
+def p_value_id(p):
+    'value : ID'
+    p[0] + p[1] 
+    
+def p_value_string(p):
+    'value : STRING'
+    p[0] =p[1]                
+
 
 # Outros
 
