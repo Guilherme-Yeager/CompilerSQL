@@ -172,6 +172,7 @@ class Visitor(AbstractVisitor):
         insert.table.accept(self)
         print(f"{self.indent()}</Table>")
 
+
         print(f"{self.indent()}<Parameters>")
         self.inc_tab()
         for param in insert.parameters:
@@ -186,6 +187,43 @@ class Visitor(AbstractVisitor):
         self.dec_tab()
         print(f"{self.indent()}</Insert>")
         self.dec_tab()
+        
+    def visitUpdate(self, upd):
+        self.inc_tab()
+        print(f"{self.indent()}<Update pos = {self.pos_command}>")
+        
+        self.inc_tab()
+        print(f"{self.indent()}<Table>")
+        upd.table.accept(self)
+        print(f"{self.indent()}</Table>")
+        
+        print(f"{self.indent()}<Set>")
+        self.inc_tab()
+        for col, expr in upd.assignments:
+            print(f"{self.indent()}<Assignment>")
+            self.inc_tab()
+            print(f"{self.indent()}<Column>{col}</Column>")
+            print(f"{self.indent()}<Expression>")
+            self.inc_tab()
+            expr.accept(self)
+            self.dec_tab()
+            print(f"{self.indent()}</Expression>")
+            self.dec_tab()
+            print(f"{self.indent()}</Assignment>")
+        self.dec_tab()
+        print(f"{self.indent()}</Set>")
+
+        if upd.where is not None:
+            print(f"{self.indent()}<Where>")
+            self.inc_tab()
+            upd.where.accept(self)
+            self.dec_tab()
+            print(f"{self.indent()}</Where>")
+
+        self.dec_tab()
+        print(f"{self.indent()}</Update>")
+        self.dec_tab()
+        
 
 
 def main(text_sql=None):

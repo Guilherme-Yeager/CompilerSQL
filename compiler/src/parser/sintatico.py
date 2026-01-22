@@ -182,11 +182,16 @@ def p_factor_grouping(p):
     'factor : LPAREN expression_ari RPAREN'
     p[0] = sa.FactorGrouping(p[2])
     
-# INSERT
+# Insert
 
+def p_command_insert_columns(p):
+    'command : INSERT INTO object LPAREN columns RPAREN VALUES LPAREN parameters RPAREN'
+    p[0] = sa.Insert(p[3], p[9], p[5])
+    
 def p_command_insert(p):
     'command : INSERT INTO object VALUES LPAREN parameters RPAREN'
     p[0] = sa.Insert(p[3], p[6])
+        
     
 def p_parameters_single(p):
     'parameters : expression'
@@ -195,10 +200,36 @@ def p_parameters_single(p):
 def p_parameters_multiple(p):
     'parameters : parameters COMMA expression'
     p[0] = p[1] + [p[3]]
+    
+#Update  
 
-      
-
-
+# def p_command_update(p):
+#     'command : UPDATE object SET assignment_list'
+#     p[0] = sa.Update(p[2], p[4])
+    
+   
+# def p_command_update_where(p):
+#     'commnad : UPDATE object SET assingnment_list WHERE expression'
+#     p[0] = sa.Update(p[2], p[4], p[6])
+                     
+        
+   
+# def p_assingnment_list_single(p):
+#     'assingnment_list : assingnment'
+#     p[0] = [p[1]]
+        
+   
+# def p_assignmente_list_multiple(p):
+#     ' assignment_list : assignment_list COMMA assignment'
+#     p[0] = p[1] + [p[3]]
+    
+   
+# def p_assignment(p):
+#     'assignment : ID EQUAL expression'
+#     p[0] = (p[1], p[3])
+    
+            
+    
 # Outros
 
 
