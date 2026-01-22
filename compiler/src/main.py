@@ -2,7 +2,6 @@ import tkinter as tk
 import compiler.src.visitor.visitor as vs
 import compiler.src.lexer.lexer as lx
 
-
 def executar(opcao_analisador, texto_sql, mode_output):
     if opcao_analisador == 1:
         lx.main(texto_sql.strip(), mode_output)

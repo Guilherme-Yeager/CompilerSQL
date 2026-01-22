@@ -241,6 +241,21 @@ class FactorGrouping(Expression):
 
 
 '''
+     Insert
+'''
+
+
+class Insert(Command):
+    def __init__(self, table, parameters, columns=None):
+        self.table = table
+        self.columns = columns
+        self.parameters = parameters
+
+    def accept(self, visitor):
+        return visitor. visitInsert(self)
+
+
+'''
     Outros
 '''
 

@@ -130,7 +130,7 @@ class Visitor(AbstractVisitor):
     def visitFactorString(self, string):
         self.aux_printer.inc_tab()
         self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<String>{string.value}</String>")
-        self.aux_printer.add_output_sql(f"'{string.value}'")
+        self.aux_printer.add_output_sql(f"{string.value}")
 
     def visitFactorGrouping(self, grouping):
         self.aux_printer.inc_tab()
@@ -179,8 +179,36 @@ class Visitor(AbstractVisitor):
         self.aux_printer.dec_tab()
         self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</ExpressionNullCheck>")
         self.aux_printer.dec_tab()
-
-
+        
+    
+    def visitInsert(self, insert):
+        self.aux_printer.inc_tab()
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<Insert pos = {self.aux_printer.pos_command}>")
+        self.aux_printer.add_output_sql(f"INSERT INTO ")
+        insert.table.accept(self)
+        if insert.columns:
+            self.aux_printer.inc_tab()
+            self.aux_printer.add_output_sql(f" (")
+            insert.columns.accept(self)
+            self.aux_printer.add_output_sql(f")")
+        self.aux_printer.add_output_sql(f"\nVALUES (")
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<Parameters>")
+        self.aux_printer.inc_tab()
+        for i, param in enumerate(insert.parameters):
+            if i > 0:
+                self.aux_printer.add_output_sql(", ")
+            self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<Parameter>")
+            param.accept(self)
+            self.aux_printer.dec_tab()
+            self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</Parameter>")
+        self.aux_printer.dec_tab()
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</Parameters>")
+        self.aux_printer.add_output_sql(f");\n\n")
+        self.aux_printer.dec_tab()
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</Insert>")
+        self.aux_printer.dec_tab()
+        
+    
 def main(text_sql=None, mode_output=1):
     lexer = lex.lex()
     if text_sql:
@@ -191,11 +219,12 @@ def main(text_sql=None, mode_output=1):
         file.close()
     parser = yacc.yacc()
     result = parser.parse(debug=False)
-    print("\n# Entrada:\n")
     visitor = Visitor()
-    result.accept(visitor)
-    visitor.aux_printer.mode = mode_output
-    visitor.aux_printer.generate_output()
+    if result is not None:
+        result.accept(visitor)
+        visitor.aux_printer.mode = mode_output
+        print("# Entrada:\n")
+        visitor.aux_printer.generate_output()
 
 
 if __name__ == "__main__":

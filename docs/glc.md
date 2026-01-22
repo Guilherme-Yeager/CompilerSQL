@@ -26,9 +26,9 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
 
     -- Insert
 
-    insert → INSERT INTO object LPAREN parameters RPAREN VALUES LPAREN parameters RPAREN |
+    insert → INSERT INTO object LPAREN  columns RPAREN VALUES LPAREN parameters RPAREN |
              INSERT INTO object VALUES LPAREN parameters RPAREN |
-             INSERT INTO object DEFAULT VALUES
+            
     
     -- Select
 
@@ -42,7 +42,7 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     -- Create
     
     create → create_table |
-             create_database |
+             create_database 
         
     create_table → CREATE TABLE object LPAREN columns_defs RPAREN
 
@@ -81,7 +81,7 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
                  DATABASE
 
     -- Update
-
+docs/glc.md
      update → UPDATE object SET set_list expression
 
      set_list → set_item |
@@ -150,7 +150,7 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     type → INT |
            STRING
            
-    parameters → expression COMMA parameters | expression
+    parameters → parameters COMMA expression | expression
 
     object → ID | 
              ID DOT ID | 
