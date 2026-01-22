@@ -242,30 +242,17 @@ class FactorGrouping(Expression):
 
 '''
      Insert
-'''     
-    
-class Insert(Command):
-    def __init__(self, table, parameters, columns=None ):
-            self.table = table
-            self.columns = columns
-            self.parameters = parameters
-            
-    def accept(self, visitor):
-         return visitor. visitInsert(self)
-     
 '''
-     Update
-'''     
 
-class Update(Command):
-    def __init__ (self, table, assignments, where=None):
+
+class Insert(Command):
+    def __init__(self, table, parameters, columns=None):
         self.table = table
-        self.assignmets = assignments # lista de coluna e expressoes
-        self.where = where
-        
-    def accept(self,visitor):
-         return(visitor.visitUpdate(self))        
+        self.columns = columns
+        self.parameters = parameters
 
+    def accept(self, visitor):
+        return visitor. visitInsert(self)
 
 
 '''

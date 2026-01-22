@@ -130,7 +130,7 @@ class Visitor(AbstractVisitor):
     def visitFactorString(self, string):
         self.aux_printer.inc_tab()
         self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<String>{string.value}</String>")
-        self.aux_printer.add_output_sql(f"'{string.value}'")
+        self.aux_printer.add_output_sql(f"{string.value}")
 
     def visitFactorGrouping(self, grouping):
         self.aux_printer.inc_tab()
@@ -182,67 +182,33 @@ class Visitor(AbstractVisitor):
         
     
     def visitInsert(self, insert):
-        self.inc_tab()
-        print(f"{self.indent()}<Insert pos = {self.pos_command}>")
-
-        self.inc_tab()
-        print(f"{self.indent()}<Table>")
+        self.aux_printer.inc_tab()
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<Insert pos = {self.aux_printer.pos_command}>")
+        self.aux_printer.add_output_sql(f"INSERT INTO ")
         insert.table.accept(self)
-        print(f"{self.indent()}</Table>")
-
-
-        print(f"{self.indent()}<Parameters>")
-        self.inc_tab()
-        for param in insert.parameters:
-            print(f"{self.indent()}<Parameter>")
-            self.inc_tab()
+        if insert.columns:
+            self.aux_printer.inc_tab()
+            self.aux_printer.add_output_sql(f" (")
+            insert.columns.accept(self)
+            self.aux_printer.add_output_sql(f")")
+        self.aux_printer.add_output_sql(f"\nVALUES (")
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<Parameters>")
+        self.aux_printer.inc_tab()
+        for i, param in enumerate(insert.parameters):
+            if i > 0:
+                self.aux_printer.add_output_sql(", ")
+            self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<Parameter>")
             param.accept(self)
-            self.dec_tab()
-            print(f"{self.indent()}</Parameter>")
-        self.dec_tab()
-        print(f"{self.indent()}</Parameters>")
-
-        self.dec_tab()
-        print(f"{self.indent()}</Insert>")
-        self.dec_tab()
+            self.aux_printer.dec_tab()
+            self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</Parameter>")
+        self.aux_printer.dec_tab()
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</Parameters>")
+        self.aux_printer.add_output_sql(f");\n\n")
+        self.aux_printer.dec_tab()
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</Insert>")
+        self.aux_printer.dec_tab()
         
-    def visitUpdate(self, upd):
-        self.inc_tab()
-        print(f"{self.indent()}<Update pos = {self.pos_command}>")
-        
-        self.inc_tab()
-        print(f"{self.indent()}<Table>")
-        upd.table.accept(self)
-        print(f"{self.indent()}</Table>")
-        
-        print(f"{self.indent()}<Set>")
-        self.inc_tab()
-        for col, expr in upd.assignments:
-            print(f"{self.indent()}<Assignment>")
-            self.inc_tab()
-            print(f"{self.indent()}<Column>{col}</Column>")
-            print(f"{self.indent()}<Expression>")
-            self.inc_tab()
-            expr.accept(self)
-            self.dec_tab()
-            print(f"{self.indent()}</Expression>")
-            self.dec_tab()
-            print(f"{self.indent()}</Assignment>")
-        self.dec_tab()
-        print(f"{self.indent()}</Set>")
-
-        if upd.where is not None:
-            print(f"{self.indent()}<Where>")
-            self.inc_tab()
-            upd.where.accept(self)
-            self.dec_tab()
-            print(f"{self.indent()}</Where>")
-
-        self.dec_tab()
-        print(f"{self.indent()}</Update>")
-        self.dec_tab()
-        
-
+    
 def main(text_sql=None, mode_output=1):
     lexer = lex.lex()
     if text_sql:
@@ -253,11 +219,12 @@ def main(text_sql=None, mode_output=1):
         file.close()
     parser = yacc.yacc()
     result = parser.parse(debug=False)
-    print("\n# Entrada:\n")
     visitor = Visitor()
-    result.accept(visitor)
-    visitor.aux_printer.mode = mode_output
-    visitor.aux_printer.generate_output()
+    if result is not None:
+        result.accept(visitor)
+        visitor.aux_printer.mode = mode_output
+        print("# Entrada:\n")
+        visitor.aux_printer.generate_output()
 
 
 if __name__ == "__main__":

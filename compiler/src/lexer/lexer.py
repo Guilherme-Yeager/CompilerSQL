@@ -27,8 +27,6 @@ reserved = {
     "or": "OR",
     "and": "AND",
     "not": "NOT",
-  
-    
 }
 
 
@@ -130,7 +128,7 @@ def main(text_sql=None, mode_output=1):
         file = open("compiler/test/test.sql", "r")
         lexer.input(file.read())
         file.close()
-    print('\n# lexer output:\n')
+    print('\n# Lexer output:\n')
     for tok in lexer:
         print('type:', tok.type, ', value:', tok.value, ', line:', tok.lineno, ', column: ', tok.lexpos - collumn)
     print()
