@@ -11,16 +11,22 @@ def p_script_compound(p):
     'script : command SEMICOLON script'
     p[0] = sa.CompoundScript(p[1], p[3])
 
+# Truncate
+
 
 def p_command_truncate(p):
     'command : TRUNCATE TABLE object'
     p[0] = sa.Truncate(p[3])
 
 
+# Create database
+
 def p_command_create_database(p):
     'command : CREATE DATABASE object'
     p[0] = sa.CreateDatabase(p[3])
 
+
+# Delete
 
 def p_command_delete(p):
     'command : DELETE FROM object'
@@ -32,15 +38,21 @@ def p_command_delete_where(p):
     p[0] = sa.Delete(p[3], p[5])
 
 
+# Drop database
+
 def p_command_drop_database(p):
     'command : DROP DATABASE object'
     p[0] = sa.DropDatabase(p[3])
+
+# Drop table
 
 
 def p_command_drop_table(p):
     'command : DROP TABLE object'
     p[0] = sa.DropTable(p[3])
 
+
+# Select
 
 def p_command_select_all(p):
     'command : SELECT TIMES FROM object'
@@ -133,8 +145,8 @@ def p_comparison_1(p):
 
 
 def p_comparison_2(p):
-    '''comparison_2 : factor null_op
-                    | factor'''
+    '''comparison_2 : expression_ari null_op
+                    | expression_ari'''
     if len(p) == 2:
         p[0] = p[1]
     else:
@@ -203,6 +215,32 @@ def p_parameters_single(p):
 def p_parameters_multiple(p):
     'parameters : parameters COMMA expression'
     p[0] = p[1] + [p[3]]
+
+# Update
+
+
+def p_update_where(p):
+    'command : UPDATE object SET set_list WHERE expression'
+    p[0] = sa.Update(p[2], p[4], p[6])
+
+def p_update(p):
+    'command : UPDATE object SET set_list'
+    p[0] = sa.Update(p[2], p[4])
+
+def p_set_list_single(p):
+    'set_list : set_item'
+    p[0] = [p[1]]
+
+def p_set_list_multiple(p):
+    'set_list : set_list COMMA set_item'
+    p[0] = p[1] + [p[3]]
+
+def p_set_item(p):
+    'set_item : ID EQUAL factor'
+    column = sa.FactorId(p[1])
+    value = p[3] 
+    p[0] = sa.AssignmentUpdate(column, value) 
+
 
 # Outros
 

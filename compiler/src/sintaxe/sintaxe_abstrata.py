@@ -252,8 +252,23 @@ class Insert(Command):
         self.parameters = parameters
 
     def accept(self, visitor):
-        return visitor. visitInsert(self)
+        return visitor.visitInsert(self)
 
+
+'''
+    Update
+'''
+
+class Update(Command):
+
+    def __init__(self, table, set_list, where=None):
+        self.table = table
+        self.set_list = set_list
+        self.where = where
+    
+    def accept(self, visitor):
+        return visitor.visitUpdate(self)
+        
 
 '''
     Outros
@@ -266,3 +281,21 @@ class Columns(Expression):
 
     def accept(self, visitor):
         return visitor.visitColumns(self)
+    
+'''
+    Assignment
+'''
+
+class Assignment(metaclass=ABCMeta):
+
+    @abstractmethod
+    def accept(self, visitor):
+        pass
+
+class AssignmentUpdate(Assignment):
+    def __init__(self, column, value):
+        self.column = column
+        self.value = value
+
+    def accept(self, visitor):
+        return visitor.visitAssignmentUpdate(self)

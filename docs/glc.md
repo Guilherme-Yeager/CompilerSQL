@@ -81,13 +81,14 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
                  DATABASE
 
     -- Update
-docs/glc.md
-     update → UPDATE object SET set_list expression
 
-     set_list → set_item |
-                set_item COMMA set_list
+     update → UPDATE object SET set_list |
+              UPDATE object SET set_list WHERE expression
 
-     ser_item → ID EQUAL expression                  
+     set_list → set_list COMMA set_item |
+                set_item
+     
+     set_item → ID EQUAL factor                  
 
     -- Expressão
 

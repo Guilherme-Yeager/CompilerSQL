@@ -207,6 +207,35 @@ class Visitor(AbstractVisitor):
         self.aux_printer.dec_tab()
         self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</Insert>")
         self.aux_printer.dec_tab()
+    
+    def visitAssignmentUpdate(self, update):
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<Item>")
+        update.column.accept(self)
+        self.aux_printer.add_output_sql(" = ")
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<Assignment>=</Assignment>")
+        self.aux_printer.dec_tab()
+        update.value.accept(self)
+        self.aux_printer.dec_tab()
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</Item>")
+        
+
+    def visitUpdate(self, update):
+        self.aux_printer.inc_tab()
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<Update = {self.aux_printer.pos_command}>")
+        self.aux_printer.add_output_sql(f"UPDATE ")
+        update.table.accept(self)
+        self.aux_printer.add_output_sql(f" SET ")
+        for i, item in enumerate(update.set_list):
+            item.accept(self)
+            if i < len(update.set_list) - 1:
+                self.aux_printer.add_output_sql(", ")
+        if update.where:
+            self.aux_printer.add_output_sql(" WHERE ")
+            update.where.accept(self)
+        self.aux_printer.dec_tab()
+        self.aux_printer.add_output_sql(f";\n\n")
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</Update>")
+        self.aux_printer.dec_tab()
         
     
 def main(text_sql=None, mode_output=1):
