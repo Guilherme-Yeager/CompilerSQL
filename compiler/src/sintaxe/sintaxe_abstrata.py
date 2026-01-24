@@ -232,6 +232,14 @@ class FactorString(Expression):
         return visitor.visitFactorString(self)
 
 
+class FactorNull(Expression):
+    def __init__(self, value):
+        self.value = value
+
+    def accept(self, visitor):
+        return visitor.visitFactorString(self)
+
+
 class FactorGrouping(Expression):
     def __init__(self, expression):
         self.expression = expression
@@ -259,16 +267,17 @@ class Insert(Command):
     Update
 '''
 
+
 class Update(Command):
 
     def __init__(self, table, set_list, where=None):
         self.table = table
         self.set_list = set_list
         self.where = where
-    
+
     def accept(self, visitor):
         return visitor.visitUpdate(self)
-        
+
 
 '''
     Outros
@@ -281,16 +290,19 @@ class Columns(Expression):
 
     def accept(self, visitor):
         return visitor.visitColumns(self)
-    
+
+
 '''
     Assignment
 '''
+
 
 class Assignment(metaclass=ABCMeta):
 
     @abstractmethod
     def accept(self, visitor):
         pass
+
 
 class AssignmentUpdate(Assignment):
     def __init__(self, column, value):

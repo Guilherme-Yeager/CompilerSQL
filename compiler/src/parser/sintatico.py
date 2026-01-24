@@ -179,6 +179,9 @@ def p_factor_id(p):
     'factor : ID'
     p[0] = sa.FactorId(p[1])
 
+def p_factor_null(p):
+    'factor : NULL'
+    p[0] = sa.FactorNull(p[1])
 
 def p_factor_int(p):
     'factor : INT'

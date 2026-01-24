@@ -144,6 +144,7 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     factor → ID |
              INT |
              STRING |
+             NULL |
              LPAREN expression RPAREN
 
     -- Outros
