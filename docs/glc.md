@@ -71,7 +71,7 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     -- Delete
     
     delete → DELETE FROM object |
-             DELETE FROM object WHERE expression
+             DELETE FROM object WHERE bool
 
     -- Drop
 
@@ -83,17 +83,12 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     -- Update
 
      update → UPDATE object SET set_list |
-              UPDATE object SET set_list WHERE expression
+              UPDATE object SET set_list WHERE bool
 
      set_list → set_list COMMA set_item |
                 set_item
      
      set_item → ID EQUAL factor                  
-
-    -- Expressão
-
-    expression → expression_ari |
-                 bool
                  
     -- Aritméticas
 
@@ -114,7 +109,6 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
             bool''
     
     bool'' → NOT bool'' |
-             LPAREN bool RPAREN |
              comparison
 
     -- Comparações
@@ -125,8 +119,8 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     comparison' → comparison' eq_op comparison'' |
                   comparison''
 
-    comparison'' → factor null_op |
-                   factor
+    comparison'' → expression_ari null_op |
+                   expression_ari
 
     null_op → IS_NULL |
               IS_NOT_NULL
@@ -145,14 +139,15 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
              INT |
              STRING |
              NULL |
-             LPAREN expression RPAREN
+             LPAREN expression_ari RPAREN
 
     -- Outros
     
     type → INT |
            STRING
            
-    parameters → parameters COMMA expression | expression
+    parameters → parameters COMMA expression_ari |
+                 expression_ari
 
     object → ID | 
              ID DOT ID | 

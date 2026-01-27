@@ -6,16 +6,11 @@ reserved = {
     "insert": "INSERT",
     "into": "INTO",
     "values": "VALUES",
-    "default": "DEFAULT",
     "select": "SELECT",
+    "create": "CREATE",
     "from": "FROM",
     "where": "WHERE",
-    "create": "CREATE",
     "database": "DATABASE",
-    "primary": "PRIMARY",
-    "key": "KEY",
-    "unique": "UNIQUE",
-    "identity": "IDENTITY",
     "delete": "DELETE",
     "drop": "DROP",
     "update": "UPDATE",
@@ -27,6 +22,12 @@ reserved = {
     "or": "OR",
     "and": "AND",
     "not": "NOT",
+    
+    # "default": "DEFAULT",
+    # "primary": "PRIMARY",
+    # "key": "KEY",
+    # "unique": "UNIQUE",
+    # "identity": "IDENTITY",
 }
 
 
@@ -36,15 +37,15 @@ tokens = [
     "MINUS",
     "TIMES",
     "DIVIDE",
-    "MOD",
-    "POWER",
+    # "MOD",
+    # "POWER",
     # ( ) [ ] { }
     "LPAREN",
     "RPAREN",
-    "LBRACKET",
-    "RBRACKET",
-    "LBRACE",
-    "RBRACE",
+    # "LBRACKET",
+    # "RBRACKET",
+    # "LBRACE",
+    # "RBRACE",
     # = '!= | <>' < <= > >=
     "EQUAL",
     "NOT_EQUAL",
@@ -65,16 +66,16 @@ t_PLUS = r'\+'
 t_MINUS = r'-'
 t_TIMES = r'\*'
 t_DIVIDE = r'/'
-t_MOD = r'%'
-t_POWER = r'\^'
+# t_MOD = r'%'
+# t_POWER = r'\^'
 t_ignore = ' \t'
 
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
-t_LBRACKET = r'\['
-t_RBRACKET = r'\]'
-t_LBRACE = r'\{'
-t_RBRACE = r'\}'
+# t_LBRACKET = r'\['
+# t_RBRACKET = r'\]'
+# t_LBRACE = r'\{'
+# t_RBRACE = r'\}'
 
 t_EQUAL = r'='
 t_NOT_EQUAL = r'(!=)|(<>)'

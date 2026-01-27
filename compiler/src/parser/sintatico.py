@@ -34,7 +34,7 @@ def p_command_delete(p):
 
 
 def p_command_delete_where(p):
-    'command : DELETE FROM object WHERE expression'
+    'command : DELETE FROM object WHERE bool'
     p[0] = sa.Delete(p[3], p[5])
 
 
@@ -63,13 +63,6 @@ def p_command_select(p):
     'command : SELECT columns FROM object'
     p[0] = sa.Select(p[2], p[4])
 
-# Expressão
-
-
-def p_expression(p):
-    '''expression : expression_ari
-                  | bool'''
-    p[0] = p[1]
 
 # Expressão aritmética
 
@@ -116,7 +109,6 @@ def p_expression_bool_and(p):
 
 def p_expression_bool_not(p):
     '''bool_2 : NOT bool_2
-              | LPAREN bool RPAREN
               | comparison'''
     if len(p) == 3:
         p[0] = sa.ExpressionNot(p[2])
@@ -211,19 +203,19 @@ def p_command_insert(p):
 
 
 def p_parameters_single(p):
-    'parameters : expression'
+    'parameters : expression_ari'
     p[0] = [p[1]]
 
 
 def p_parameters_multiple(p):
-    'parameters : parameters COMMA expression'
+    'parameters : parameters COMMA expression_ari'
     p[0] = p[1] + [p[3]]
 
 # Update
 
 
 def p_update_where(p):
-    'command : UPDATE object SET set_list WHERE expression'
+    'command : UPDATE object SET set_list WHERE bool'
     p[0] = sa.Update(p[2], p[4], p[6])
 
 def p_update(p):

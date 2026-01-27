@@ -152,7 +152,6 @@ class Visitor(AbstractVisitor):
         self.aux_printer.dec_tab()
         if expression.right is not None:
             expression.right.accept(self)
-        self.aux_printer.dec_tab()
         self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</ExpressionComparison>")
         self.aux_printer.dec_tab()
 
