@@ -60,13 +60,29 @@ class AbstractVisitor(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def visitExpressionComparison(self, expression):
-        pass
-
-    @abstractmethod
     def visitExpressionBool(self, expression):
         pass
 
     @abstractmethod
     def visitExpressionNullCheck(self, expression):
+        pass
+
+    @abstractmethod
+    def visitColumns(self, columns):
+        pass
+
+    @abstractmethod
+    def visitExpressionAri(self, expression):
+        pass
+
+    @abstractmethod
+    def visitInsert(self, insert):
+        pass
+
+    @abstractmethod
+    def visitAssignmentUpdate(self, update):
+        pass
+
+    @abstractmethod
+    def visitUpdate(self, update):
         pass

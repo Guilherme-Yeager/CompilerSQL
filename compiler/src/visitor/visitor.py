@@ -100,6 +100,7 @@ class Visitor(AbstractVisitor):
             self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</Column>")
 
     def visitExpressionAri(self, expression):
+        self.aux_printer.inc_tab()
         self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<ExpressionAri>")
         expression.left.accept(self)
         self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<Operator>{expression.operator}</Operator>")
@@ -136,12 +137,10 @@ class Visitor(AbstractVisitor):
         self.aux_printer.inc_tab()
         self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<Grouping>")
         self.aux_printer.add_output_sql(f"(")
-        self.aux_printer.inc_tab()
         grouping.expression.accept(self)
         self.aux_printer.dec_tab()
         self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</Grouping>")
         self.aux_printer.add_output_sql(f")")
-        self.aux_printer.dec_tab()
 
     def visitExpressionComparison(self, expression):
         self.aux_printer.inc_tab()
@@ -152,6 +151,7 @@ class Visitor(AbstractVisitor):
         self.aux_printer.dec_tab()
         if expression.right is not None:
             expression.right.accept(self)
+            self.aux_printer.dec_tab()
         self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</ExpressionComparison>")
         self.aux_printer.dec_tab()
 
@@ -186,7 +186,6 @@ class Visitor(AbstractVisitor):
         self.aux_printer.add_output_sql(f"INSERT INTO ")
         insert.table.accept(self)
         if insert.columns:
-            self.aux_printer.inc_tab()
             self.aux_printer.add_output_sql(f" (")
             insert.columns.accept(self)
             self.aux_printer.add_output_sql(f")")
