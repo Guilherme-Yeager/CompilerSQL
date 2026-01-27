@@ -142,9 +142,6 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
              LPAREN expression_ari RPAREN
 
     -- Outros
-    
-    type → INT |
-           STRING
            
     parameters → parameters COMMA expression_ari |
                  expression_ari
