@@ -1,0 +1,56 @@
+{
+    "biotlab": {
+        "bindable": "scheme",
+        "funcionario": {
+            "bindable": "table",
+            "columns": {
+                "id": [
+                    "int",
+                    "primary key"
+                ],
+                "nome": [
+                    "varchar(50)",
+                    "not null"
+                ],
+                "cpf": [
+                    "varchar(11)",
+                    "not null",
+                    "unique"
+                ]
+            }
+        },
+        "animal": {
+            "bindable": "table",
+            "columns": {
+                "id": [
+                    "int",
+                    "primary key"
+                ],
+                "nome": [
+                    "string",
+                    "not null"
+                ],
+                "id_bioterio": [
+                    "int",
+                    "foreign key"
+                ]
+            }
+        }
+    },
+    "cuidado": {
+        "bindable": "scheme",
+        "paciente": {
+            "bindable": "table",
+            "columns": {
+                "id": [
+                    "int",
+                    "primary key"
+                ],
+                "nome": [
+                    "varchar(50)",
+                    "not null"
+                ]
+            }
+        }
+    }
+}
