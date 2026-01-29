@@ -37,7 +37,8 @@ class Schema():
         Return:
             bool: True caso a tabela seja encontrada, False caso contrário.
         '''
-        return nome_tabela in self.objetos and self.objetos[nome_tabela].get("bindable") == "table"
+        nome_tabela = nome_tabela.lower()
+        return nome_tabela in self.objetos and self.objetos[nome_tabela].get("bindable", "") == "table"
 
     def existe_coluna(self, nome_tabela, nome_coluna):
         '''
@@ -51,7 +52,7 @@ class Schema():
             bool: True caso a coluna seja encontrada, False caso contrário.
         '''
         if self.existe_tabela(nome_tabela):
-            return nome_coluna in self.objetos[nome_tabela]["columns"]
+            return nome_coluna.lower() in self.objetos[nome_tabela.lower()]["columns"]
         return False
 
     def tipo_coluna_compativel(self, nome_tabela, nome_coluna, tipo_esperado):

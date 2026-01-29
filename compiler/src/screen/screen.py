@@ -102,7 +102,7 @@ class Screen():
         elif opcao_analisador == 2:
             self.executar_sintatico(texto_sql.strip(), mode_output)
         elif opcao_analisador == 3:
-            pass
+            self.executar_semantico(texto_sql.strip(), self.schema)
             
     def executar(self):
         self.janela.mainloop()
