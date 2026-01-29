@@ -20,16 +20,20 @@ A estrutura do projeto foi organizada de forma modular, separando claramente cad
   │   └── schema/ # Camada responsável por analisar o catálogo e fornecer as informações do schema atual
   |   |   ├── __init__.py
   |   |   └── schema.py
+  │   └── screen/ # GUI
+  |   |   ├── __init__.py
+  |   |   └── screen.py
   │   └── semantic/ # Etapa semântica
   |   |   └── __init__.py     
   │   └── sintaxe/ # AST
   |   |   ├── __init__.py
   |   |   └── sintaxe_abstrata.py
   |   └── visitor/ # Visitor Pretty Printer
-  |       ├── __init__.py
-  |       ├── abstract_visitor.py
-  |       ├── aux_visitor_print.py
-  |       └── visitor.py
+  |   |   ├── __init__.py
+  |   |   ├── abstract_visitor.py
+  |   |   ├── aux_visitor_print.py
+  |   |   └── visitor.py
+  |   └── main.py
   ├── test/
   |   └── test.sql # Arquivo padrão de entrada
   └── docs/
