@@ -82,7 +82,7 @@ class SemanticVisitor(AbstractVisitor):
         pass
 
 
-def main(text_sql=None, schema=None):
+def main(text_sql=None, schema=None, mode_output=1):
     lexer = lex.lex()
     if text_sql:
         lexer.input(text_sql)
@@ -95,6 +95,7 @@ def main(text_sql=None, schema=None):
     parser = yacc.yacc()
     result = parser.parse(debug=False)
     svisitor = SemanticVisitor(schema)
+    svisitor.printer.aux_printer.mode = mode_output
     if result is not None:
         result.accept(svisitor)
         print(f"\nForam encontrados {svisitor.n_errors} erros")

@@ -121,7 +121,7 @@ def t_error(t):
    print("Illegal character '%s'" % t.value[0], ', line:', t.lineno, ', column: ', t.lexpos - collumn)
    t.lexer.skip(1)
 
-def main(text_sql=None, mode_output=1):
+def main(text_sql=None):
     lexer = lex.lex()
     if text_sql:
         lexer.input(text_sql)
