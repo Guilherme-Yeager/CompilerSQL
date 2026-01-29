@@ -8,6 +8,7 @@ BINDABLE = 'bindable'
 COLUMNS = 'columns'
 TABLE = 'table'
 VALUES = 'values'
+CLAUSES = 'clauses'
 SCOPE = 'scope'
 
 # Se DEBUG = -1, imprime conteudo da tabela de símbolos após cada mudança
@@ -33,15 +34,17 @@ def endScope():
     symbolTable = symbolTable[0:-1]
     printTable()
 
-
-def addCommand(name, table=None, columns=None, values=None):
+def addCommand(name, table=None, columns=None, values=None, clauses=None):
     global symbolTable
     contador_comandos = len(symbolTable[-1])
-    symbolTable[-1][f'{name}_{contador_comandos}'] = {
+    nome_comando = f'{name}_{contador_comandos}'
+    symbolTable[-1][nome_comando] = {
         BINDABLE: name,
         TABLE: table,
         COLUMNS: columns,
-        VALUES: values
+        VALUES: values,
+        CLAUSES: clauses
+
     }
     printTable()
 
@@ -72,7 +75,7 @@ def main():
     print('\n# Criando escopo subconsulta')
     beginScope('subconsulta')
     print('\n# Adicionando comando de subconsulta')
-    addCommand('select', 'empresa', ['id_organizacao'])
+    addCommand('select', 'empresa', ['id_organizacao'], clauses=['where', 'ord'])
     print('\n# Removendo escopo subconsulta')
     endScope()
     print('\n# Removendo escopo select')
