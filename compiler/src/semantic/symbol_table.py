@@ -44,7 +44,6 @@ def addCommand(name, table=None, columns=None, values=None, clauses=None):
         COLUMNS: columns,
         VALUES: values,
         CLAUSES: clauses
-
     }
     printTable()
 
