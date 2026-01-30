@@ -10,10 +10,13 @@ class Screen():
 
         self.janela = tk.Tk()
         self.opcao_analisador = tk.IntVar(value=1)
-        self.opcao_analisador.trace_add("write", self.gerenciar_menu_schema)
+        self.opcao_analisador.trace_add("write", self.gerenciar_menu_banco)
         self.opcao_saida = tk.IntVar(value=1)
         self.nome_schema_atual = tk.StringVar()
+        self.nome_banco_atual = tk.StringVar()
+        self.nome_banco_atual.trace_add("write", self.gerenciar_nome_banco)
         self.nome_schema_atual.trace_add("write", self.gerenciar_nome_schema)
+        self.menu_schemas = None
         self.caixa_texto = None
         self.setup_screen()
 
@@ -26,7 +29,7 @@ class Screen():
         self.janela.resizable(False, False)
         self.add_menu()
         self.add_widgets()
-        self.gerenciar_menu_schema()
+        self.gerenciar_menu_banco()
 
     def add_menu(self):
         menu = tk.Menu(self.janela)
@@ -51,24 +54,24 @@ class Screen():
         frame_superior.pack(side="top", fill="x", padx=20, pady=(10, 0))
         tk.Label(frame_superior, text="Entrada:",
                  font=("Monospace", 10)).pack(side="left")
-
-        opcoes = self.schema.listar_schemas()
-
-        if opcoes:
-            self.nome_schema_atual.set(opcoes[0])
-            self.schema.definir_nome_schema_atual(opcoes[0])
-
-        self.menu_schemas = tk.OptionMenu(
-            frame_superior, 
-            self.nome_schema_atual, 
-            *opcoes
-        )
-        self.menu_schemas = tk.OptionMenu(
-            frame_superior, self.nome_schema_atual, *opcoes)
+        
+        opcoes_db = self.schema.listar_bancos()
+        if opcoes_db:
+            self.nome_banco_atual.set(self.schema.nome_banco_atual)
+        opcoes_schema = self.schema.listar_schemas()
+        if opcoes_schema:
+            self.nome_schema_atual.set(self.schema.nome_schema_atual)
+        self.menu_schemas = tk.OptionMenu(frame_superior, self.nome_schema_atual, *opcoes_schema)
         self.menu_schemas.config(width=12)
-        self.menu_schemas.pack(side="right", padx=(5, 0))
-        tk.Label(frame_superior, text="Schema:", font=(
-            "Monospace", 10)).pack(side="right")
+        self.menu_schemas.pack(side="right")
+        
+        tk.Label(frame_superior, text="Schema:", font=("Monospace", 10)).pack(side="right", padx=(5, 0))
+
+        self.menu_databases = tk.OptionMenu(frame_superior, self.nome_banco_atual, *opcoes_db)
+        self.menu_databases.config(width=12)
+        self.menu_databases.pack(side="right")
+        
+        tk.Label(frame_superior, text="Banco:", font=("Monospace", 10)).pack(side="right")
 
         self.caixa_texto = tk.Text(self.janela, font=("Monospace", 12))
         self.caixa_texto.pack(padx=20, pady=10, fill="both", expand=True)
@@ -87,14 +90,33 @@ class Screen():
         )
         botao.pack()
 
-    def gerenciar_menu_schema(self, *args):
+    def gerenciar_menu_banco(self, *args):
         if self.opcao_analisador.get() == 3:
+            self.menu_databases.config(state="normal")
             self.menu_schemas.config(state="normal")
         else:
+            self.menu_databases.config(state="disabled")
             self.menu_schemas.config(state="disabled")
 
     def gerenciar_nome_schema(self, *args):
         self.schema.definir_nome_schema_atual(self.nome_schema_atual.get())
+
+    def gerenciar_nome_banco(self, *args):
+        if self.menu_schemas is None:
+            return
+        self.schema.nome_banco_atual = self.nome_banco_atual.get()
+        lista_schemas = self.schema.listar_schemas()
+        menu = self.menu_schemas["menu"]
+        menu.delete(0, "end") 
+        
+        if lista_schemas:
+            self.nome_schema_atual.set(lista_schemas[0])
+            for schema in lista_schemas:
+                menu.add_command(
+                    label=schema, 
+                    command=lambda s=schema: self.nome_schema_atual.set(s)
+                )
+        self.schema.definir_banco_atual(self.nome_banco_atual.get())
 
     def executar_analisador(self, opcao_analisador, texto_sql, mode_output):
         if opcao_analisador == 1:

@@ -1,56 +1,92 @@
 {
-    "biotlab": {
-        "bindable": "scheme",
-        "funcionario": {
-            "bindable": "table",
-            "columns": {
-                "id": [
-                    "int",
-                    "primary key"
-                ],
-                "nome": [
-                    "varchar(50)",
-                    "not null"
-                ],
-                "cpf": [
-                    "varchar(11)",
-                    "not null",
-                    "unique"
-                ]
+    "master": {
+        "bindable": "database",
+        "dbo": {
+            "bindable": "scheme"
+        }
+    },
+    "model": {
+        "bindable": "database",
+        "dbo": {
+            "bindable": "scheme"
+        }
+    },
+    "msdb": {
+        "bindable": "database",
+        "dbo": {
+            "bindable": "scheme"
+        }
+    },
+    "tempdb": {
+        "bindable": "database",
+        "dbo": {
+            "bindable": "scheme"
+        }
+    },
+    "engs_ufs": {
+        "bindable": "database",
+        "dbo": {
+            "bindable": "scheme"
+        },
+        "biotlab": {
+            "bindable": "scheme",
+            "funcionario": {
+                "bindable": "table",
+                "columns": {
+                    "id": [
+                        "int",
+                        "primary key"
+                    ],
+                    "nome": [
+                        "varchar(50)",
+                        "not null"
+                    ],
+                    "cpf": [
+                        "varchar(11)",
+                        "not null",
+                        "unique"
+                    ]
+                }
+            },
+            "animal": {
+                "bindable": "table",
+                "columns": {
+                    "id": [
+                        "int",
+                        "primary key"
+                    ],
+                    "nome": [
+                        "string",
+                        "not null"
+                    ],
+                    "id_bioterio": [
+                        "int",
+                        "foreign key"
+                    ]
+                }
             }
         },
-        "animal": {
-            "bindable": "table",
-            "columns": {
-                "id": [
-                    "int",
-                    "primary key"
-                ],
-                "nome": [
-                    "string",
-                    "not null"
-                ],
-                "id_bioterio": [
-                    "int",
-                    "foreign key"
-                ]
+        "cuidado": {
+            "bindable": "scheme",
+            "paciente": {
+                "bindable": "table",
+                "columns": {
+                    "id": [
+                        "int",
+                        "primary key"
+                    ],
+                    "nome": [
+                        "varchar(50)",
+                        "not null"
+                    ]
+                }
             }
         }
     },
-    "cuidado": {
-        "bindable": "scheme",
-        "paciente": {
-            "bindable": "table",
-            "columns": {
-                "id": [
-                    "int",
-                    "primary key"
-                ],
-                "nome": [
-                    "varchar(50)",
-                    "not null"
-                ]
-            }
+    "nunes": {
+        "bindable": "database",
+        "dbo": {
+            "bindable": "scheme"
         }
     }
 }
