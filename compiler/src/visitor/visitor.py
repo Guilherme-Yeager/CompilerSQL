@@ -63,11 +63,14 @@ class Visitor(AbstractVisitor):
         self.aux_printer.add_output_sql(f";\n\n")
 
     def visitDropTable(self, command):
-        self.aux_printer.add_output_xml(f"{self.indent()}<DropTable pos = {self.aux_printer.pos_command}>")
-        self.aux_printer.add_output_sql(f"DROP TABLE {command.table.name};")
+        self.aux_printer.inc_tab()
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<DropTable pos = {self.aux_printer.pos_command}>")
+        self.aux_printer.add_output_sql(f"DROP TABLE ")
         command.table.accept(self)
         self.aux_printer.dec_tab()
         self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</DropTable>")
+        self.aux_printer.dec_tab()
+        self.aux_printer.add_output_sql(f";\n\n")
 
     def visitSelect(self, select):
         self.aux_printer.inc_tab()
@@ -250,7 +253,7 @@ def main(text_sql=None, mode_output=1):
     if result is not None:
         result.accept(visitor)
         visitor.aux_printer.mode = mode_output
-        print("# Entrada:\n")
+        print("\n# Entrada:\n")
         visitor.aux_printer.generate_output()
 
 

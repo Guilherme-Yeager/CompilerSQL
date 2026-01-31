@@ -7,8 +7,20 @@ class Schema():
         self.nome_banco_atual = "master"
         self.nome_schema_atual = "dbo"
         self.caminho_catalogo = "compiler/resources/catalog.json"
-        with open(self.caminho_catalogo, 'r') as file:
-            self.catalogo = json.load(file)
+        try:
+            with open(self.caminho_catalogo, 'r') as file:
+                self.catalogo = json.load(file)
+        except FileNotFoundError:
+            print(
+                f"[Aviso] Catálogo não encontrado, foi adicionado o banco padrão.")
+            self.catalogo = {
+                "master": {
+                    "bindable": "database",
+                    "dbo": {
+                        "bindable": "scheme"
+                    }
+                },
+            }
         self.schema = {}
 
     def listar_bancos(self):
@@ -19,7 +31,7 @@ class Schema():
             list[str]: Uma lista contendo os nomes dos bancos.
         '''
         return list(self.catalogo.keys())
-        
+
     def listar_schemas(self):
         '''
         Busca os schemas disponíveis no arquivo de catálogo.
@@ -49,7 +61,7 @@ class Schema():
         '''
         nome_banco = nome_banco.lower()
         return nome_banco in self.listar_bancos()
-        
+
     def existe_tabela(self, nome_tabela):
         '''
         Verifica se uma tabela existe no schema atual.
@@ -94,6 +106,22 @@ class Schema():
             return tipo_esperado.lower() == self.schema[nome_tabela]["columns"][nome_coluna][0].lower()
         return False
 
+    def buscar_tipo_coluna(self, nome_tabela, nome_coluna):
+        '''
+        Busca o tipo de uma coluna.
+
+        Args:
+            nome_tabela (str): O nome da tabela que a coluna pode estar.
+            nome_coluna (str): O nome da coluna que pode existir na tabela.
+
+        Return:
+            str: Tipo da coluna desejada.
+            None: Caso a coluna não exista na tabela atual.
+        '''
+        if self.existe_coluna(nome_tabela, nome_coluna):
+            return self.schema[nome_tabela.lower()]["columns"][nome_coluna.lower()][0].lower()
+        return None
+
     def buscar_restricao_coluna(self, nome_tabela, nome_coluna):
         '''
         Busca as restrições de uma coluna.
@@ -117,7 +145,7 @@ class Schema():
             nome_banco_atual (str): O nome do banco.
         '''
         self.nome_banco_atual = nome_banco_atual
-    
+
     def definir_nome_schema_atual(self, nome_schema_atual):
         '''
         Define um novo schema para a sessão atual.
