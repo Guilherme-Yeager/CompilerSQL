@@ -110,8 +110,8 @@ class SemanticVisitor(AbstractVisitor):
         pass
 
     def visitExpressionComparison(self, expression):
-        tipo_esq = self.validar_tipo_objeto_coluna(expression.left)
-        tipo_dir = self.validar_tipo_objeto_coluna(expression.right)
+        tipo_esq = self.buscar_tipo_coluna(expression.left)
+        tipo_dir = self.buscar_tipo_coluna(expression.right)
         if tipo_esq is None or tipo_dir is None:
                 return
         if tipo_esq != tipo_dir:
