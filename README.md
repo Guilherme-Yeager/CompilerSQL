@@ -24,7 +24,9 @@ A estrutura do projeto foi organizada de forma modular, separando claramente cad
   |   |   ├── __init__.py
   |   |   └── screen.py
   │   └── semantic/ # Etapa semântica
-  |   |   └── __init__.py     
+  |   |   ├── __init__.py
+  |   |   ├── semantic_visitor.py
+  |   |   └── symbol_table.py 
   │   └── sintaxe/ # AST
   |   |   ├── __init__.py
   |   |   └── sintaxe_abstrata.py
