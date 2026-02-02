@@ -25,7 +25,7 @@ Onde o script SQL é composto por algums comandos (uma ou mais instruções) ou 
     1.1 Comandos da Linguagem
 </h3>
 
-A linguagem SQL aceita diversos tipos de comandos que permitem ao usuário interagir com o banco de dados.De forma geral, esses comandos podem ser classificados em algumas categorias principais - [Divisões da Linguagem](lexico.md).
+A linguagem SQL aceita diversos tipos de comandos que permitem ao usuário interagir com o banco de dados. De forma geral, esses comandos podem ser classificados em algumas categorias principais - [Divisões da Linguagem](lexico.md).
 
 
 <h3 align="center"> 
@@ -38,7 +38,7 @@ Em SQL, uma expressão é uma combinação de valores, colunas, operadores e fun
     1.2.1 Chamadas de Função e Atribuição
 </h3>
 
-Em SQL, chamadas de função permitem executar operações pré-definidas ou definidas pelo usuário, onde executam operações e podem retor valores que podem ser usados em expressões ou consultas. Já a atribuição permite armazenar o resultado de expressões ou funções em colunas ou variáveis, sendo usada em comandos como UPDATE ou em blocos de procedimentos.
+Em SQL, chamadas de função permitem executar operações pré-definidas ou definidas pelo usuário, onde executam operações e podem retornar valores que podem ser usados em expressões ou consultas. Já a atribuição permite armazenar o resultado de expressões ou funções em colunas ou variáveis, sendo usada em comandos como UPDATE ou em blocos de procedimentos armazenados.
 
 <h3 align="center"> 
     2. Exemplos de Código
