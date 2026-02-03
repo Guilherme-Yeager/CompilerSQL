@@ -73,8 +73,6 @@ class Screen():
         
         tk.Label(frame_superior, text="Banco:", font=("Monospace", 10)).pack(side="right")
 
-        self.caixa_texto = tk.Text(self.janela, font=("Monospace", 12))
-        self.caixa_texto.pack(padx=20, pady=10, fill="both", expand=True)
 
         frame_inferior = tk.Frame(self.janela)
         frame_inferior.pack(side="bottom", pady=(0, 10))
@@ -89,6 +87,9 @@ class Screen():
             bg="#0400FF", fg="white", width=12
         )
         botao.pack()
+        
+        self.caixa_texto = tk.Text(self.janela, font=("Monospace", 12))
+        self.caixa_texto.pack(padx=20, pady=10, fill="both", expand=True)
 
     def gerenciar_menu_banco(self, *args):
         if self.opcao_analisador.get() == 3:
