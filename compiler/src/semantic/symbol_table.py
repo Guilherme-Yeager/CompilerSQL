@@ -9,6 +9,7 @@ COLUMNS = 'columns'
 TABLE = 'table'
 VALUES = 'values'
 CLAUSES = 'clauses'
+DATABASE = 'database'
 SCOPE = 'scope'
 
 # Se DEBUG = -1, imprime conteudo da tabela de símbolos após cada mudança
@@ -34,12 +35,13 @@ def endScope():
     symbolTable = symbolTable[0:-1]
     printTable()
 
-def addCommand(name, table=None, columns=None, values=None, clauses=None):
+def addCommand(name, database=None, table=None, columns=None, values=None, clauses=None):
     global symbolTable
     contador_comandos = len(symbolTable[-1])
     nome_comando = f'{name}_{contador_comandos}'
     symbolTable[-1][nome_comando] = {
         BINDABLE: name,
+        DATABASE: database,
         TABLE: table,
         COLUMNS: columns,
         VALUES: values,

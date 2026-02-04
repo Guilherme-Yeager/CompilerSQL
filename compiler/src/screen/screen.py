@@ -1,12 +1,12 @@
 import tkinter as tk
-
+from compiler.src.schema.schema import Schema
 
 class Screen():
-    def __init__(self, executar_lexico, executar_sintatico, executar_semantico, schema):
+    def __init__(self, executar_lexico, executar_sintatico, executar_semantico):
         self.executar_lexico = executar_lexico
         self.executar_sintatico = executar_sintatico
         self.executar_semantico = executar_semantico
-        self.schema = schema
+        self.schema = Schema()
 
         self.janela = tk.Tk()
         self.opcao_analisador = tk.IntVar(value=1)
@@ -126,6 +126,7 @@ class Screen():
             self.executar_sintatico(texto_sql.strip(), mode_output)
         elif opcao_analisador == 3:
             self.executar_semantico(texto_sql.strip(), self.schema, mode_output)
-            
+            self.schema.reset_catalogo()
+
     def executar(self):
         self.janela.mainloop()

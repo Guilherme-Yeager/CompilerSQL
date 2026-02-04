@@ -22,6 +22,8 @@ class SemanticVisitor(AbstractVisitor):
     def visitCompoundScript(self, command):
         st.beginScope('script')
         command.command.accept(self)
+        self.printer.aux_printer.pos_command += 1
+        command.script.accept(self)
         st.endScope()
 
     def visitTruncate(self, command):
@@ -36,6 +38,7 @@ class SemanticVisitor(AbstractVisitor):
 
     def visitCreateDatabase(self, command):
         st.beginScope('createDatabase')
+        st.addCommand('createDatabase', database=command.database.name)
         command.database.accept(self)
         if not command.database.db and not command.database.schema:
             nome_banco = command.database.name
@@ -43,10 +46,12 @@ class SemanticVisitor(AbstractVisitor):
                 print(
                     f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (CREATE DATABASE)> : Banco de dados já existe.")
                 self.n_errors += 1
+            self.schema.create_database_catalogo(nome_banco)
         else:
             print(
                 f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (CREATE DATABASE)> : Informe apenas o nome do banco de dados.")
             self.n_errors += 1
+        
         st.endScope()
 
     def visitDelete(self, delete):
@@ -58,6 +63,7 @@ class SemanticVisitor(AbstractVisitor):
             self.n_errors += 1
         else:
             if delete.where:
+                st.addCommand('delete', table=delete.table.name, clauses=delete.where)
                 self.comando_atual = 'Delete'
                 self.table_atual = delete.table.name
                 delete.where.accept(self)
@@ -67,22 +73,26 @@ class SemanticVisitor(AbstractVisitor):
 
     def visitDropDatabase(self, command):
         st.beginScope('delete')
+        st.addCommand('dropDatabase', database=command.database.name)
         command.database.accept(self)
         nome_banco = command.database.name
         if not self.schema.existe_banco(nome_banco):
             print(
                 f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (DROP DATABASE)> : Banco de dados '{nome_banco}' não existe.")
             self.n_errors += 1
+        self.schema.drop_database_catalogo(nome_banco)
         st.endScope()
 
     def visitDropTable(self, command):
         st.beginScope('delete')
+        st.addCommand('dropTable', table=command.table.name)
         command.table.accept(self)
         nome_tabela = command.table.name
         if not self.schema.existe_tabela(nome_tabela):
             print(
                 f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (DROP TABLE)> : Tabela '{nome_tabela}' não existe no schema.")
             self.n_errors += 1
+        self.schema.drop_table_catalogo(nome_tabela)
         st.endScope()
 
     def visitSelect(self, select):

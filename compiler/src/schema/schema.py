@@ -155,3 +155,55 @@ class Schema():
         '''
         self.nome_schema_atual = nome_schema_atual
         self.carregar_schema()
+
+    def drop_database_catalogo(self, nome_banco):
+        '''
+        Remove um banco do catálogo.
+
+        Args:
+            nome_banco (str): O nome do banco a ser removido.
+        '''
+        nome_banco = nome_banco.lower()
+        if nome_banco in ['master', 'tempdb', 'model', 'msdb']:
+            return False
+        if self.existe_banco(nome_banco):
+            self.catalogo.pop(nome_banco, None)
+            return True
+        return False
+    
+
+    def drop_table_catalogo(self, nome_tabela):
+        '''
+        Remove uma tabela do catálogo.
+
+        Args:
+            nome_tabela (str): O nome da tabela a ser removida.
+        '''
+        if self.existe_tabela(nome_tabela):
+            self.catalogo[self.nome_banco_atual][self.nome_schema_atual].pop(nome_tabela.lower(), None)
+            return True
+        return False
+
+    def create_database_catalogo(self, nome_banco):
+        '''
+        Adiciona um banco ao catálogo.
+
+        Args:
+            nome_banco (str): O nome do banco a ser adicionado.
+        '''
+        nome_banco = nome_banco.lower()
+        if not self.existe_banco(nome_banco):
+            self.catalogo[nome_banco] = {"bindable": "database", "dbo": {"bindable": "scheme"}}
+            return True
+        return False
+
+    def reset_catalogo(self):
+        '''
+        Reseta o catálogo para o estado inicial padrão.
+        '''
+        with open(self.caminho_catalogo, 'r') as file:
+            self.catalogo = json.load(file)
+        self.nome_banco_atual = "master"
+        self.nome_schema_atual = "dbo"
+        self.schema = {}
+        self.carregar_schema()
