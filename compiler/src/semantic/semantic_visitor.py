@@ -96,16 +96,47 @@ class SemanticVisitor(AbstractVisitor):
         st.endScope()
 
     def visitSelect(self, select):
+        st.beginScope('select')
+        select.table.accept(self)
+        self.table_atual = select.table.name
+        self.comando_atual = 'Select'
+        select.columns.accept(self)
+        st.addCommand('select', columns=select.columns, table=self.table_atual)
+        self.table_atual = None
+        st.endScope()
         pass
 
-    def visitSelectAll(self, _):
-        pass
+    def visitSelectAll(self, select):
+        if not self.schema.existe_tabela(self.table_atual):
+            print(
+                f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (SELECT ALL)> : Tabela '{self.table_atual}' não existe no schema.")
+            self.n_errors += 1
+        self.table_atual = None
+        self.comando_atual = ''
 
     def visitColumns(self, columns):
-        pass
+        if not self.schema.existe_tabela(self.table_atual):
+            print(
+                f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} ({self.comando_atual})> : Tabela '{self.table_atual}' não existe no schema.")
+            self.n_errors += 1
+            return
+        for column in columns.columns_list:
+            if not self.schema.existe_coluna(self.table_atual, column.name):
+                print(f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} ({self.comando_atual})> : "
+                      f"Coluna '{column.name}' não existe na tabela '{self.table_atual}'.")
+                self.n_errors += 1
+                return
+            column.accept(self)
 
     def visitExpressionAri(self, expression):
-        pass
+        tipo_esq = self.buscar_tipo_factor(expression.left)
+        tipo_dir = self.buscar_tipo_factor(expression.right)
+        if tipo_esq is None or tipo_dir is None:
+            return None
+        if tipo_esq != SemanticVisitor.TIPO_INT or tipo_dir != SemanticVisitor.TIPO_INT:
+            print(f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} ({self.comando_atual})> : "
+                f"Operação aritmética inválida entre {tipo_esq} e {tipo_dir}.")
+            self.n_errors += 1
 
     def visitFactorId(self, factor):
         return SemanticVisitor.TIPO_OBJETO
@@ -120,8 +151,8 @@ class SemanticVisitor(AbstractVisitor):
         pass
 
     def visitExpressionComparison(self, expression):
-        tipo_esq = self.buscar_tipo_coluna(expression.left)
-        tipo_dir = self.buscar_tipo_coluna(expression.right)
+        tipo_esq = self.buscar_tipo_factor(expression.left)
+        tipo_dir = self.buscar_tipo_factor(expression.right)
         if tipo_esq is None or tipo_dir is None:
                 return
         if tipo_esq != tipo_dir:
@@ -133,7 +164,13 @@ class SemanticVisitor(AbstractVisitor):
         pass
 
     def visitExpressionNullCheck(self, expression):
-        pass
+        tipo = expression.expression.accept(self)
+        if tipo == SemanticVisitor.TIPO_OBJETO:
+            nome_coluna = expression.expression.name
+            if not self.schema.existe_coluna(self.table_atual, nome_coluna):
+                print(f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command}> ({self.comando_atual}) : "
+                      f"Coluna '{nome_coluna}' não existe na tabela '{self.table_atual}'.")
+                self.n_errors += 1
 
     def visitInsert(self, insert):
         pass
@@ -144,21 +181,21 @@ class SemanticVisitor(AbstractVisitor):
     def visitUpdate(self, update):
         pass
 
-    def buscar_tipo_coluna(self, coluna):
+    def buscar_tipo_factor(self, factor):
         '''
-        Busca o tipo real de uma coluna, antes validando
-        se ela existe na tabela.
+        Busca o tipo real de factor.
 
         Args:
-            coluna: FactorId que é a coluna.
+            factor: o útlimo factor analisado.
 
         Returns:
-            str: O tipo da coluna.
+            str: O tipo do factor.
             None: Caso a coluna não exista na tabela atual.
         '''
-        tipo = coluna.accept(self)
+        tipo = factor.accept(self)
+        print(tipo)
         if tipo == SemanticVisitor.TIPO_OBJETO:
-            nome_coluna = coluna.name
+            nome_coluna = factor.name
             if not self.schema.existe_coluna(self.table_atual, nome_coluna):
                 print(f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command}> ({self.comando_atual}) : "
                       f"Coluna '{nome_coluna}' não existe na tabela '{self.table_atual}'.")

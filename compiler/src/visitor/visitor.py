@@ -93,7 +93,7 @@ class Visitor(AbstractVisitor):
         self.aux_printer.add_output_sql(f"*")
 
     def visitColumns(self, columns):
-        columns_list =columns.columns_list
+        columns_list = columns.columns_list
         for i, col in enumerate(columns_list):
             if i > 0:
                 self.aux_printer.add_output_sql(", ")

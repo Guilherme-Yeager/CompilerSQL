@@ -203,7 +203,5 @@ class Schema():
         '''
         with open(self.caminho_catalogo, 'r') as file:
             self.catalogo = json.load(file)
-        self.nome_banco_atual = "master"
-        self.nome_schema_atual = "dbo"
         self.schema = {}
         self.carregar_schema()
