@@ -27,7 +27,7 @@ SET nome = 'Diogo';
 
 CREATE TABLE pessoas (
     id INT,
-    nome VARCHAR,
+    nome VARCHAR(10),
     idade INT
 );
 
