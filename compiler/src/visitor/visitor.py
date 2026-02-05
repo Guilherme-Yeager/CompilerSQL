@@ -282,6 +282,9 @@ class Visitor(AbstractVisitor):
         )
         self.aux_printer.add_output_sql(f"{column.type.upper()}")
 
+        if column.size is not None:
+            self.aux_printer.add_output_sql(f"({column.size})") 
+
         self.aux_printer.dec_tab()
         self.aux_printer.add_output_xml(
             f"{self.aux_printer.indent()}</ColumnDefinition>"
