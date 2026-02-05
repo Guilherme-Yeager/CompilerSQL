@@ -73,6 +73,8 @@ class Schema():
             bool: True caso a tabela seja encontrada, False caso contrário.
         '''
         nome_tabela = nome_tabela.lower()
+        if not self.existe_banco(self.nome_banco_atual):
+            return False
         return nome_tabela in list(self.schema)[1:] and self.schema[nome_tabela].get("bindable", "") == "table"
 
     def existe_coluna(self, nome_tabela, nome_coluna):
@@ -162,6 +164,9 @@ class Schema():
 
         Args:
             nome_banco (str): O nome do banco a ser removido.
+        
+        Returns:
+            bool: True se o banco foi removido, False caso contrário.
         '''
         nome_banco = nome_banco.lower()
         if nome_banco in ['master', 'tempdb', 'model', 'msdb']:
@@ -171,13 +176,15 @@ class Schema():
             return True
         return False
     
-
     def drop_table_catalogo(self, nome_tabela):
         '''
         Remove uma tabela do catálogo.
 
         Args:
             nome_tabela (str): O nome da tabela a ser removida.
+
+        Returns:
+            bool: True se a tabela foi removida, False caso contrário.
         '''
         if self.existe_tabela(nome_tabela):
             self.catalogo[self.nome_banco_atual][self.nome_schema_atual].pop(nome_tabela.lower(), None)
@@ -190,6 +197,9 @@ class Schema():
 
         Args:
             nome_banco (str): O nome do banco a ser adicionado.
+
+        Returns:
+            bool: True se o banco foi adicionado, False caso contrário.
         '''
         nome_banco = nome_banco.lower()
         if not self.existe_banco(nome_banco):
@@ -203,5 +213,4 @@ class Schema():
         '''
         with open(self.caminho_catalogo, 'r') as file:
             self.catalogo = json.load(file)
-        self.schema = {}
         self.carregar_schema()

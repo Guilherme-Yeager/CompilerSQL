@@ -76,11 +76,15 @@ class SemanticVisitor(AbstractVisitor):
         st.addCommand('dropDatabase', database=command.database.name)
         command.database.accept(self)
         nome_banco = command.database.name
-        if not self.schema.existe_banco(nome_banco):
+        if self.schema.existe_banco(nome_banco):
+            if not self.schema.drop_database_catalogo(nome_banco):
+                print(
+                    f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (DROP DATABASE)> : Não é possível remover o banco de dados '{nome_banco}'.")
+                self.n_errors += 1
+        else:
             print(
                 f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (DROP DATABASE)> : Banco de dados '{nome_banco}' não existe.")
             self.n_errors += 1
-        self.schema.drop_database_catalogo(nome_banco)
         st.endScope()
 
     def visitDropTable(self, command):
@@ -203,7 +207,6 @@ class SemanticVisitor(AbstractVisitor):
                 return None
             return self.schema.buscar_tipo_coluna(self.table_atual, nome_coluna)
         return tipo
-
 
 
 def main(text_sql=None, schema=None, mode_output=1):

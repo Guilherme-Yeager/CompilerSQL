@@ -127,6 +127,6 @@ class Screen():
         elif opcao_analisador == 3:
             self.executar_semantico(texto_sql.strip(), self.schema, mode_output)
             self.schema.reset_catalogo()
-
+            
     def executar(self):
         self.janela.mainloop()
