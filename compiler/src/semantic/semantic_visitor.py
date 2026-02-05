@@ -46,7 +46,8 @@ class SemanticVisitor(AbstractVisitor):
                 print(
                     f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (CREATE DATABASE)> : Banco de dados já existe.")
                 self.n_errors += 1
-            self.schema.create_database_catalogo(nome_banco)
+            else:
+                self.schema.create_database_catalogo(nome_banco)
         else:
             print(
                 f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (CREATE DATABASE)> : Informe apenas o nome do banco de dados.")
@@ -197,7 +198,6 @@ class SemanticVisitor(AbstractVisitor):
             None: Caso a coluna não exista na tabela atual.
         '''
         tipo = factor.accept(self)
-        print(tipo)
         if tipo == SemanticVisitor.TIPO_OBJETO:
             nome_coluna = factor.name
             if not self.schema.existe_coluna(self.table_atual, nome_coluna):
