@@ -67,21 +67,18 @@ def p_table_columns_single(p):
 
 def p_table_column(p):
     'table_column : ID type'
-    p[0] = sa.ColumnDefinition(p[1], p[2])
+    col_type, size = p[2]
+    p[0] = sa.ColumnDefinition(p[1], col_type, size)
 
 # Definição de tipos
 
 def p_type_int(p):
-    '''
-    type : INT
-    '''
-    p[0] = 'int'
+    'type : INT'
+    p[0] = ('int', None)
 
 def p_type_varchar(p):
-    '''
-    type : VARCHAR
-    '''
-    p[0] = 'varchar'
+    'type : VARCHAR LPAREN INT RPAREN'
+    p[0] = ('varchar', p[3])
 
 # Drop table
 
