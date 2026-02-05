@@ -238,6 +238,55 @@ class Visitor(AbstractVisitor):
         self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</Update>")
         self.aux_printer.dec_tab()
         
+    def visitCreateTable(self, command):
+        self.aux_printer.inc_tab()
+        self.aux_printer.add_output_xml(
+            f"{self.aux_printer.indent()}<CreateTable pos = {self.aux_printer.pos_command}>"
+        )
+        self.aux_printer.add_output_sql("CREATE TABLE ")
+
+        command.table.accept(self)
+
+        self.aux_printer.add_output_sql(" (\n")
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<Columns>")
+        self.aux_printer.inc_tab()
+
+        for i, col in enumerate(command.columns):
+            if i > 0:
+                self.aux_printer.add_output_sql(",\n")
+            col.accept(self)
+
+        self.aux_printer.dec_tab()
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</Columns>")
+        self.aux_printer.add_output_sql("\n)")
+
+        self.aux_printer.dec_tab()
+        self.aux_printer.add_output_xml(
+            f"{self.aux_printer.indent()}</CreateTable>"
+        )
+        self.aux_printer.add_output_sql(";\n\n")
+
+    def visitColumnDefinition(self, column):
+        self.aux_printer.inc_tab()
+        self.aux_printer.add_output_xml(
+            f"{self.aux_printer.indent()}<ColumnDefinition>"
+        )
+
+        self.aux_printer.add_output_xml(
+            f"{self.aux_printer.indent()}<Name>{column.name}</Name>"
+        )
+        self.aux_printer.add_output_sql(f"    {column.name} ")
+
+        self.aux_printer.add_output_xml(
+            f"{self.aux_printer.indent()}<Type>{column.type}</Type>"
+        )
+        self.aux_printer.add_output_sql(f"{column.type.upper()}")
+
+        self.aux_printer.dec_tab()
+        self.aux_printer.add_output_xml(
+            f"{self.aux_printer.indent()}</ColumnDefinition>"
+        )
+
     
 def main(text_sql=None, mode_output=1):
     lexer = lex.lex()
