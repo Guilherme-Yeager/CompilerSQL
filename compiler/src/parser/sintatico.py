@@ -44,6 +44,45 @@ def p_command_drop_database(p):
     'command : DROP DATABASE object'
     p[0] = sa.DropDatabase(p[3])
 
+# Create table
+
+def p_command_create_table(p):
+    'command : CREATE TABLE object LPAREN table_columns RPAREN'
+    p[0] = sa.CreateTable(p[3], p[5])
+
+# Create table múltiplas colunas
+
+def p_table_columns_list(p):
+    'table_columns : table_columns COMMA table_column'
+    p[0] = p[1]
+    p[0].append(p[3])
+
+# Create table com coluna única
+
+def p_table_columns_single(p):
+    'table_columns : table_column'
+    p[0] = [p[1]]
+
+# Definição de coluna
+
+def p_table_column(p):
+    'table_column : ID type'
+    p[0] = sa.ColumnDefinition(p[1], p[2])
+
+# Definição de tipos
+
+def p_type_int(p):
+    '''
+    type : INT
+    '''
+    p[0] = 'int'
+
+def p_type_varchar(p):
+    '''
+    type : VARCHAR
+    '''
+    p[0] = 'varchar'
+
 # Drop table
 
 
