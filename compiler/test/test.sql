@@ -25,4 +25,12 @@ WHERE id = 42;
 UPDATE FUNCIONARIO
 SET nome = 'Diogo';
 
+CREATE TABLE pessoas (
+    id INT,
+    nome VARCHAR,
+    idade INT
+);
 
+CREATE TABLE pessoas (
+    id INT
+);
