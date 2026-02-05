@@ -77,9 +77,10 @@ class CreateTable:
         return visitor.visitCreateTable(self)
 
 class ColumnDefinition:
-    def __init__(self, name, col_type):
+    def __init__(self, name, col_type, size=None):
         self.name = name
-        self.type = col_type
+        self.type = col_type    
+        self.size = size
 
     def accept(self, visitor):
         return visitor.visitColumnDefinition(self)
