@@ -77,13 +77,17 @@ class CreateTable:
         return visitor.visitCreateTable(self)
 
 class ColumnDefinition:
-    def __init__(self, name, col_type, size=None):
+    def __init__(self, name, col_type, nullability=None, identity=None,  constraints=None, default_value=None): 
         self.name = name
         self.type = col_type    
-        self.size = size
+        self.nullability = nullability
+        self.identity = identity  
+        self.constraints = constraints or []
+        self.default_value = default_value
 
     def accept(self, visitor):
         return visitor.visitColumnDefinition(self)
+
 
 '''
     Delete
