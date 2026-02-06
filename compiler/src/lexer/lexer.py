@@ -23,13 +23,11 @@ reserved = {
     "or": "OR",
     "and": "AND",
     "not": "NOT",
-        
-    
-    # "default": "DEFAULT",
-    # "primary": "PRIMARY",
-    # "key": "KEY",
-    # "unique": "UNIQUE",
-    # "identity": "IDENTITY",
+    "default": "DEFAULT",
+    "primary": "PRIMARY",
+    "key": "KEY",
+    "unique": "UNIQUE",
+    "identity": "IDENTITY",
 }
 
 
