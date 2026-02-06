@@ -277,18 +277,34 @@ class Visitor(AbstractVisitor):
         )
         self.aux_printer.add_output_sql(f"    {column.name} ")
 
+        tipo, tamanho = column.type
         self.aux_printer.add_output_xml(
-            f"{self.aux_printer.indent()}<Type>{column.type}</Type>"
+            f"{self.aux_printer.indent()}<Type>{tipo}</Type>"
         )
-        self.aux_printer.add_output_sql(f"{column.type.upper()}")
+        if tamanho:
+            self.aux_printer.add_output_sql(f"{tipo.upper()}({tamanho})")
+        else:
+            self.aux_printer.add_output_sql(tipo.upper())
 
-        if column.size is not None:
-            self.aux_printer.add_output_sql(f"({column.size})") 
+        if column.nullability:
+            self.aux_printer.add_output_sql(f" {column.nullability}")
+
+        if column.identity:
+            seed, increment = column.identity
+            self.aux_printer.add_output_sql(f" IDENTITY({seed},{increment})")
+
+        for constraint in column.constraints:
+            self.aux_printer.add_output_sql(f" {constraint}")
+
+        if column.default_value is not None:
+            self.aux_printer.add_output_sql(" DEFAULT ")
+            column.default_value.accept(self) 
 
         self.aux_printer.dec_tab()
         self.aux_printer.add_output_xml(
             f"{self.aux_printer.indent()}</ColumnDefinition>"
         )
+
 
     
 def main(text_sql=None, mode_output=1):
