@@ -25,12 +25,8 @@ WHERE id = 42;
 UPDATE FUNCIONARIO
 SET nome = 'Diogo';
 
-CREATE TABLE pessoas (
-    id INT,
-    nome VARCHAR(10),
-    idade INT
-);
-
-CREATE TABLE pessoas (
-    id INT
+CREATE TABLE Pessoa (
+    id INT NOT NULL IDENTITY(1,1) UNIQUE PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL,
+    ativo INT DEFAULT 1
 );
