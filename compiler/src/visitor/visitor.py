@@ -238,6 +238,74 @@ class Visitor(AbstractVisitor):
         self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</Update>")
         self.aux_printer.dec_tab()
         
+    def visitCreateTable(self, command):
+        self.aux_printer.inc_tab()
+        self.aux_printer.add_output_xml(
+            f"{self.aux_printer.indent()}<CreateTable pos = {self.aux_printer.pos_command}>"
+        )
+        self.aux_printer.add_output_sql("CREATE TABLE ")
+
+        command.table.accept(self)
+
+        self.aux_printer.add_output_sql(" (\n")
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}<Columns>")
+        self.aux_printer.inc_tab()
+
+        for i, col in enumerate(command.columns):
+            if i > 0:
+                self.aux_printer.add_output_sql(",\n")
+            col.accept(self)
+
+        self.aux_printer.dec_tab()
+        self.aux_printer.add_output_xml(f"{self.aux_printer.indent()}</Columns>")
+        self.aux_printer.add_output_sql("\n)")
+
+        self.aux_printer.dec_tab()
+        self.aux_printer.add_output_xml(
+            f"{self.aux_printer.indent()}</CreateTable>"
+        )
+        self.aux_printer.add_output_sql(";\n\n")
+
+    def visitColumnDefinition(self, column):
+        self.aux_printer.inc_tab()
+        self.aux_printer.add_output_xml(
+            f"{self.aux_printer.indent()}<ColumnDefinition>"
+        )
+
+        self.aux_printer.add_output_xml(
+            f"{self.aux_printer.indent()}<Name>{column.name}</Name>"
+        )
+        self.aux_printer.add_output_sql(f"    {column.name} ")
+
+        tipo, tamanho = column.type
+        self.aux_printer.add_output_xml(
+            f"{self.aux_printer.indent()}<Type>{tipo}</Type>"
+        )
+        if tamanho:
+            self.aux_printer.add_output_sql(f"{tipo.upper()}({tamanho})")
+        else:
+            self.aux_printer.add_output_sql(tipo.upper())
+
+        if column.nullability:
+            self.aux_printer.add_output_sql(f" {column.nullability}")
+
+        if column.identity:
+            seed, increment = column.identity
+            self.aux_printer.add_output_sql(f" IDENTITY({seed},{increment})")
+
+        for constraint in column.constraints:
+            self.aux_printer.add_output_sql(f" {constraint}")
+
+        if column.default_value is not None:
+            self.aux_printer.add_output_sql(" DEFAULT ")
+            column.default_value.accept(self) 
+
+        self.aux_printer.dec_tab()
+        self.aux_printer.add_output_xml(
+            f"{self.aux_printer.indent()}</ColumnDefinition>"
+        )
+
+
     
 def main(text_sql=None, mode_output=1):
     lexer = lex.lex()

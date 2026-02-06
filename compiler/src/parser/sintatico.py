@@ -44,6 +44,95 @@ def p_command_drop_database(p):
     'command : DROP DATABASE object'
     p[0] = sa.DropDatabase(p[3])
 
+# Create table
+
+def p_command_create_table(p):
+    'command : CREATE TABLE object LPAREN column_defs RPAREN'
+    p[0] = sa.CreateTable(p[3], p[5])
+
+# Create table com coluna única
+
+def p_table_columns_single(p):
+    'column_defs : column_def'
+    p[0] = [p[1]]
+
+# Create table múltiplas colunas
+
+def p_table_columns_list(p):
+    'column_defs : column_def COMMA column_defs'
+    p[0] = [p[1]] + p[3]
+
+# Definição de coluna
+
+def p_column_def(p):
+    'column_def : ID type column_nullability_opt column_identity_opt column_constraint_list_opt column_default_opt'
+    p[0] = sa.ColumnDefinition(
+        name=p[1],
+        col_type=p[2],
+        nullability=p[3],
+        identity=p[4],
+        constraints=p[5],
+        default_value=p[6]
+    )
+
+# Restrições na criação da tabela
+
+def p_column_nullability_not_null(p):
+    'column_nullability_opt : NOT NULL'
+    p[0] = 'NOT NULL'
+
+def p_column_nullability_null(p):
+    'column_nullability_opt : NULL'
+    p[0] = 'NULL'
+
+def p_column_nullability_empty(p):
+    'column_nullability_opt : '
+    p[0] = None
+
+def p_column_identity(p):
+    'column_identity_opt : IDENTITY LPAREN INT COMMA INT RPAREN'
+    p[0] = (p[3], p[5])
+
+def p_column_identity_empty(p):
+    'column_identity_opt : '
+    p[0] = None
+
+def p_column_constraint_list(p):
+    'column_constraint_list_opt : column_constraint column_constraint_list_opt'
+    p[0] = [p[1]] + p[2]
+
+def p_column_constraint_list_empty(p):
+    'column_constraint_list_opt : '
+    p[0] = []
+
+def p_column_constraint_pk(p):
+    'column_constraint : PRIMARY KEY'
+    p[0] = 'PRIMARY KEY'
+
+def p_column_constraint_unique(p):
+    'column_constraint : UNIQUE'
+    p[0] = 'UNIQUE'
+
+def p_column_default(p):
+    'column_default_opt : DEFAULT factor'
+    p[0] = p[2]
+
+def p_column_default_empty(p):
+    'column_default_opt : '
+    p[0] = None
+
+
+# Definição de tipos
+
+def p_type_int(p):
+    'type : INT'
+    p[0] = ('int', None)
+
+def p_type_varchar(p):
+    'type : VARCHAR LPAREN INT RPAREN'
+    p[0] = ('varchar', p[3])
+
+
 # Drop table
 
 
