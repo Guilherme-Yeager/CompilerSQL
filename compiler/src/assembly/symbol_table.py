@@ -13,19 +13,25 @@ OFFSET = 'offset'
 SP = 'sp' 
 TYPE = 'type'
 
-DEBUG = -1
+DEBUG = 0
+
+def printTable():
+    global DEBUG
+    if DEBUG == -1:
+        print('Tabela:', symbolTable)
 
 def beginScope(nameScope):
     global symbolTable
     symbolTable.append({})
-    symbolTable[-1][SP] = 0
     contador = len(symbolTable)
     symbolTable[-1][SCOPE] = f'{nameScope}_{contador}'
+    symbolTable[-1][SP] = 0
+    printTable()
 
 def endScope():
     global symbolTable
-    if len(symbolTable) > 0:
-        symbolTable.pop()
+    symbolTable = symbolTable[0:-1]
+    printTable()
 
 def addCommand(name, database=None, table=None, columns=None, values=None, clauses=None, size=4):
     global symbolTable
@@ -44,6 +50,7 @@ def addCommand(name, database=None, table=None, columns=None, values=None, claus
         OFFSET: symbolTable[-1][SP],
         TYPE: STRING if name == 'select' else INT
     }
+    printTable()
 
 def getSP():
     return symbolTable[-1][SP]
