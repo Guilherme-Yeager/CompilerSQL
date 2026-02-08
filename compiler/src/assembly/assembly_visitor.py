@@ -72,6 +72,12 @@ class AssemblyVisitor(AbstractVisitor):
 
     def visitUpdate(self, update):
         pass
+    
+    def visitCreateTable(self, command):
+        pass
+
+    def visitColumnDefinition(self, column):
+        pass
 
     def getAssemblyType(type):
         if type == "string":

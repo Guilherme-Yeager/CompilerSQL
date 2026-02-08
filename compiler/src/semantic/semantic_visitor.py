@@ -186,6 +186,12 @@ class SemanticVisitor(AbstractVisitor):
     def visitUpdate(self, update):
         pass
 
+    def visitCreateTable(self, command):
+        pass
+    
+    def visitColumnDefinition(self, column):
+        pass
+
     def buscar_tipo_factor(self, factor):
         '''
         Busca o tipo real de factor.
