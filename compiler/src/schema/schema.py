@@ -62,6 +62,15 @@ class Schema():
         nome_banco = nome_banco.lower()
         return nome_banco in self.listar_bancos()
 
+    def existe_tabela_insert(self, nome_tabela):
+        nome_tabela = nome_tabela.lower()
+        if not self.existe_banco(self.nome_banco_atual):
+            return False
+        if not self.schema:
+            self.carregar_schema()
+        return nome_tabela in self.schema and self.schema[nome_tabela].get("bindable", "") == "table"
+
+
     def existe_tabela(self, nome_tabela):
         '''
         Verifica se uma tabela existe no schema atual.
