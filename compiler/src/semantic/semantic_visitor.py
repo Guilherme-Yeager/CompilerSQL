@@ -189,7 +189,7 @@ class SemanticVisitor(AbstractVisitor):
 
 
     def visitInsert(self, insert):
-        st.beginScope('insert')
+        st_sem.beginScope('insert')
 
         insert.table.accept(self)
         self.table_atual = insert.table.name.lower()
@@ -201,7 +201,7 @@ class SemanticVisitor(AbstractVisitor):
                 f"Tabela '{self.table_atual}' não existe no schema."
             )
             self.n_errors += 1
-            st.endScope()
+            st_sem.endScope()
             return
 
         if insert.columns:
@@ -213,7 +213,7 @@ class SemanticVisitor(AbstractVisitor):
                         f"Coluna '{col.name}' não existe na tabela '{self.table_atual}'."
                     )
                     self.n_errors += 1
-                    st.endScope()
+                    st_sem.endScope()
                     return
                 colunas.append(col.name)
         else:
@@ -227,7 +227,7 @@ class SemanticVisitor(AbstractVisitor):
                 f"Número de colunas diferente do número de valores."
             )
             self.n_errors += 1
-            st.endScope()
+            st_sem.endScope()
             return
 
         for coluna, valor in zip(colunas, valores):
@@ -257,7 +257,7 @@ class SemanticVisitor(AbstractVisitor):
 
         self.table_atual = None
         self.comando_atual = ''
-        st.endScope()
+        st_sem.endScope()
 
 
     def visitAssignmentUpdate(self, update):
@@ -296,7 +296,7 @@ class SemanticVisitor(AbstractVisitor):
             self.n_errors += 1
 
     def visitUpdate(self, update):
-        st.beginScope('update')
+        st_sem.beginScope('update')
 
         update.table.accept(self)
         self.table_atual = update.table.name.lower()
@@ -308,7 +308,7 @@ class SemanticVisitor(AbstractVisitor):
                 f"Tabela '{self.table_atual}' não existe no schema."
             )
             self.n_errors += 1
-            st.endScope()
+            st_sem.endScope()
             return
 
         for assignment in update.set_list:
@@ -319,7 +319,7 @@ class SemanticVisitor(AbstractVisitor):
 
         self.table_atual = None
         self.comando_atual = ''
-        st.endScope()
+        st_sem.endScope()
 
 
     def visitCreateTable(self, command):
