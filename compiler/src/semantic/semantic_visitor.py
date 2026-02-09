@@ -192,7 +192,7 @@ class SemanticVisitor(AbstractVisitor):
         st.beginScope('insert')
 
         insert.table.accept(self)
-        self.table_atual = insert.table.name
+        self.table_atual = insert.table.name.lower()
         self.comando_atual = 'INSERT'
 
         if not self.schema.existe_tabela_insert(self.table_atual):
@@ -299,7 +299,7 @@ class SemanticVisitor(AbstractVisitor):
         st.beginScope('update')
 
         update.table.accept(self)
-        self.table_atual = update.table.name
+        self.table_atual = update.table.name.lower()
         self.comando_atual = 'UPDATE'
 
         if not self.schema.existe_tabela(self.table_atual):
@@ -334,7 +334,7 @@ class SemanticVisitor(AbstractVisitor):
             None: Caso a coluna não exista na tabela atual.
         '''
         tipo = factor.accept(self)
-        print(tipo)
+        #print(tipo)
         if tipo == SemanticVisitor.TIPO_OBJETO:
             nome_coluna = factor.name
             if not self.schema.existe_coluna(self.table_atual, nome_coluna):
