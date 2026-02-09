@@ -68,6 +68,26 @@ class CreateDatabase(Command):
     def accept(self, visitor):
         return visitor.visitCreateDatabase(self)
 
+class CreateTable:
+    def __init__(self, table, columns):
+        self.table = table
+        self.columns = columns
+
+    def accept(self, visitor):
+        return visitor.visitCreateTable(self)
+
+class ColumnDefinition:
+    def __init__(self, name, col_type, nullability=None, identity=None,  constraints=None, default_value=None): 
+        self.name = name
+        self.type = col_type    
+        self.nullability = nullability
+        self.identity = identity  
+        self.constraints = constraints or []
+        self.default_value = default_value
+
+    def accept(self, visitor):
+        return visitor.visitColumnDefinition(self)
+
 
 '''
     Delete

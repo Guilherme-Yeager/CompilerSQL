@@ -1,5 +1,5 @@
 # Dicionario que representa a tabela de simbolos.
-symbolTable = []
+symbolTableSemantic = []
 
 INT = 'int'
 STRING = 'string'
@@ -19,27 +19,27 @@ DEBUG = 0
 def printTable():
     global DEBUG
     if DEBUG == -1:
-        print('Tabela:', symbolTable)
+        print('Tabela:', symbolTableSemantic)
 
 
 def beginScope(nameScope):
-    global symbolTable
-    symbolTable.append({})
-    contador_escopos = len(symbolTable)
-    symbolTable[-1][SCOPE] = f'{nameScope}_{contador_escopos}'
+    global symbolTableSemantic
+    symbolTableSemantic.append({})
+    contador_escopos = len(symbolTableSemantic)
+    symbolTableSemantic[-1][SCOPE] = f'{nameScope}_{contador_escopos}'
     printTable()
 
 
 def endScope():
-    global symbolTable
-    symbolTable = symbolTable[0:-1]
+    global symbolTableSemantic
+    symbolTableSemantic = symbolTableSemantic[0:-1]
     printTable()
 
 def addCommand(name, database=None, table=None, columns=None, values=None, clauses=None):
-    global symbolTable
-    contador_comandos = len(symbolTable[-1])
+    global symbolTableSemantic
+    contador_comandos = len(symbolTableSemantic[-1])
     nome_comando = f'{name}_{contador_comandos}'
-    symbolTable[-1][nome_comando] = {
+    symbolTableSemantic[-1][nome_comando] = {
         BINDABLE: name,
         DATABASE: database,
         TABLE: table,
@@ -51,20 +51,23 @@ def addCommand(name, database=None, table=None, columns=None, values=None, claus
 
 
 def getBindable(bindableName):
-    global symbolTable
-    for i in reversed(range(len(symbolTable))):
-        if (bindableName in symbolTable[i].keys()):
-            return symbolTable[i].get(bindableName, 'Bindable Desconhecido')
+    global symbolTableSemantic
+    for i in reversed(range(len(symbolTableSemantic))):
+        if (bindableName in symbolTableSemantic[i].keys()):
+            return symbolTableSemantic[i].get(bindableName, 'Bindable Desconhecido')
     return None
 
 
 def getScope(bindableName):
-    global symbolTable
-    for i in reversed(range(len(symbolTable))):
-        if (bindableName in symbolTable[i].keys()):
-            return symbolTable[i].get(SCOPE, 'Escopo Desconhecido')
+    global symbolTableSemantic
+    for i in reversed(range(len(symbolTableSemantic))):
+        if (bindableName in symbolTableSemantic[i].keys()):
+            return symbolTableSemantic[i].get(SCOPE, 'Escopo Desconhecido')
     return None
 
+def clearSymbolTable():
+    global symbolTableSemantic
+    symbolTableSemantic = []
 
 def main():
     global DEBUG

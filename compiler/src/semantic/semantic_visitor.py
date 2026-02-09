@@ -1,4 +1,4 @@
-import compiler.src.semantic.symbol_table as st
+import compiler.src.semantic.symbol_table_semantic as st_sem
 from compiler.src.visitor.visitor import *
 from compiler.src.schema.schema import Schema
 from compiler.src.sintaxe.sintaxe_abstrata import FactorNull
@@ -20,25 +20,25 @@ class SemanticVisitor(AbstractVisitor):
         return
 
     def visitCompoundScript(self, command):
-        st.beginScope('script')
+        st_sem.beginScope('script')
         command.command.accept(self)
         self.printer.aux_printer.pos_command += 1
         command.script.accept(self)
-        st.endScope()
+        st_sem.endScope()
 
     def visitTruncate(self, command):
-        st.beginScope('truncate')
-        st.addCommand('truncate', table=command.table.name)
+        st_sem.beginScope('truncate')
+        st_sem.addCommand('truncate', table=command.table.name)
         command.table.accept(self)
         if not self.schema.existe_tabela(command.table.name):
             print(
                 f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (TRUNCATE)> : Tabela '{command.table.name}' não existe no schema.")
             self.n_errors += 1
-        st.endScope()
+        st_sem.endScope()
 
     def visitCreateDatabase(self, command):
-        st.beginScope('createDatabase')
-        st.addCommand('createDatabase', database=command.database.name)
+        st_sem.beginScope('createDatabase')
+        st_sem.addCommand('createDatabase', database=command.database.name)
         command.database.accept(self)
         if not command.database.db and not command.database.schema:
             nome_banco = command.database.name
@@ -46,16 +46,17 @@ class SemanticVisitor(AbstractVisitor):
                 print(
                     f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (CREATE DATABASE)> : Banco de dados já existe.")
                 self.n_errors += 1
-            self.schema.create_database_catalogo(nome_banco)
+            else:
+                self.schema.create_database_catalogo(nome_banco)
         else:
             print(
                 f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (CREATE DATABASE)> : Informe apenas o nome do banco de dados.")
             self.n_errors += 1
         
-        st.endScope()
+        st_sem.endScope()
 
     def visitDelete(self, delete):
-        st.beginScope('delete')
+        st_sem.beginScope('delete')
         delete.table.accept(self)
         if not self.schema.existe_tabela(delete.table.name):
             print(
@@ -63,17 +64,17 @@ class SemanticVisitor(AbstractVisitor):
             self.n_errors += 1
         else:
             if delete.where:
-                st.addCommand('delete', table=delete.table.name, clauses=delete.where)
+                st_sem.addCommand('delete', table=delete.table.name, clauses=delete.where)
                 self.comando_atual = 'Delete'
                 self.table_atual = delete.table.name
                 delete.where.accept(self)
         self.comando_atual = ''
         self.table_atual = None
-        st.endScope()
+        st_sem.endScope()
 
     def visitDropDatabase(self, command):
-        st.beginScope('delete')
-        st.addCommand('dropDatabase', database=command.database.name)
+        st_sem.beginScope('delete')
+        st_sem.addCommand('dropDatabase', database=command.database.name)
         command.database.accept(self)
         nome_banco = command.database.name
         if self.schema.existe_banco(nome_banco):
@@ -85,11 +86,11 @@ class SemanticVisitor(AbstractVisitor):
             print(
                 f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (DROP DATABASE)> : Banco de dados '{nome_banco}' não existe.")
             self.n_errors += 1
-        st.endScope()
+        st_sem.endScope()
 
     def visitDropTable(self, command):
-        st.beginScope('delete')
-        st.addCommand('dropTable', table=command.table.name)
+        st_sem.beginScope('delete')
+        st_sem.addCommand('dropTable', table=command.table.name)
         command.table.accept(self)
         nome_tabela = command.table.name
         if not self.schema.existe_tabela(nome_tabela):
@@ -97,18 +98,17 @@ class SemanticVisitor(AbstractVisitor):
                 f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (DROP TABLE)> : Tabela '{nome_tabela}' não existe no schema.")
             self.n_errors += 1
         self.schema.drop_table_catalogo(nome_tabela)
-        st.endScope()
+        st_sem.endScope()
 
     def visitSelect(self, select):
-        st.beginScope('select')
-        select.table.accept(self)
+        st_sem.beginScope('select')
         self.table_atual = select.table.name
+        st_sem.addCommand('select', columns=select.columns, table=self.table_atual)
+        select.table.accept(self)
         self.comando_atual = 'Select'
         select.columns.accept(self)
-        st.addCommand('select', columns=select.columns, table=self.table_atual)
         self.table_atual = None
-        st.endScope()
-        pass
+        st_sem.endScope()
 
     def visitSelectAll(self, select):
         if not self.schema.existe_tabela(self.table_atual):
@@ -322,6 +322,12 @@ class SemanticVisitor(AbstractVisitor):
         st.endScope()
 
 
+    def visitCreateTable(self, command):
+        pass
+    
+    def visitColumnDefinition(self, column):
+        pass
+
     def buscar_tipo_factor(self, factor):
         '''
         Busca o tipo real de factor.
@@ -334,7 +340,6 @@ class SemanticVisitor(AbstractVisitor):
             None: Caso a coluna não exista na tabela atual.
         '''
         tipo = factor.accept(self)
-        #print(tipo)
         if tipo == SemanticVisitor.TIPO_OBJETO:
             nome_coluna = factor.name
             if not self.schema.existe_coluna(self.table_atual, nome_coluna):
@@ -353,8 +358,6 @@ def main(text_sql=None, schema=None, mode_output=1):
         file = open("compiler/test/test.sql", "r")
         lexer.input(file.read())
         file.close()
-    if schema is None:
-        schema = Schema()
     parser = yacc.yacc()
     result = parser.parse()
     svisitor = SemanticVisitor(schema)
@@ -362,7 +365,6 @@ def main(text_sql=None, schema=None, mode_output=1):
     if result is not None:
         result.accept(svisitor)
         print(f"\nForam encontrados {svisitor.n_errors} erros.")
-
-
+    
 if __name__ == "__main__":
     main()

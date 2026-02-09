@@ -86,3 +86,13 @@ class AbstractVisitor(metaclass=ABCMeta):
     @abstractmethod
     def visitUpdate(self, update):
         pass
+
+    @abstractmethod
+    def visitCreateTable(self, command):
+        pass
+
+    @abstractmethod
+    def visitColumnDefinition(self, column):
+        pass
+
+    

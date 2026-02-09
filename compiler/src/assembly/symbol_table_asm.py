@@ -1,0 +1,113 @@
+symbolTableAsm = []
+
+INT = 'int'
+STRING = 'string'
+BINDABLE = 'bindable'
+DATABASE = 'database'
+TABLE = 'table'
+VALUES = 'values'
+CLAUSES = 'clauses'
+COLUMNS = 'columns'
+SCOPE = 'scope'
+SCOPE_MAIN = 'script'
+OFFSET = 'offset'
+SP = 'sp'
+TYPE = 'type'
+
+DEBUG = 0
+
+
+def printTable():
+    global DEBUG
+    if DEBUG == -1:
+        print('Tabela:', symbolTableAsm)
+
+
+def beginScope(nameScope):
+    global symbolTableAsm
+    symbolTableAsm.append({})
+    contador = len(symbolTableAsm)
+    symbolTableAsm[-1][SCOPE] = f'{nameScope}_{contador}'
+    symbolTableAsm[-1][SP] = 0
+    printTable()
+
+
+def endScope():
+    global symbolTableAsm
+    symbolTableAsm = symbolTableAsm[0:-1]
+    printTable()
+
+
+def addCommand(name, database=None, table=None, columns=None, values=None, clauses=None, size=4):
+    global symbolTableAsm
+    if size % 4 != 0:
+        size += (4 - (size % 4))
+    symbolTableAsm[-1][SP] -= size
+    nome_comando = f'{name}_{len(symbolTableAsm[-1])}'
+    symbolTableAsm[-1][nome_comando] = {
+        BINDABLE: name,
+        DATABASE: database,
+        TABLE: table,
+        COLUMNS: columns,
+        VALUES: values,
+        CLAUSES: clauses,
+        OFFSET: symbolTableAsm[-1][SP],
+        TYPE: STRING if name == 'select' else INT
+    }
+    printTable()
+
+
+def getSP():
+    return symbolTableAsm[-1][SP]
+
+def getContadorComandos():
+    if not symbolTableAsm:
+        return 0
+    return len(symbolTableAsm[-1]) - 1
+
+def getBindable(bindableName):
+    for i in reversed(range(len(symbolTableAsm))):
+        if bindableName in symbolTableAsm[i]:
+            return symbolTableAsm[i][bindableName]
+    return None
+
+
+def getScope(bindableName=None):
+    global symbolTableAsm
+    for i in reversed(range(len(symbolTableAsm))):
+        if (bindableName in symbolTableAsm[i].keys()):
+            return symbolTableAsm[i][SCOPE]
+        else:
+            return symbolTableAsm[-1][SCOPE]
+    return None
+
+def clearSymbolTable():
+    global symbolTableAsm
+    symbolTableAsm = []
+
+def main():
+    global DEBUG
+    DEBUG = -1
+    print('\n# Criando escopo select')
+    beginScope('select')
+    print('\n# Adicionando comando select')
+    addCommand('select', 'funcionario', ['nome'])
+    print('\n# Criando escopo subconsulta')
+    beginScope('subconsulta')
+    print('\n# Adicionando comando de subconsulta')
+    addCommand('select', 'empresa', [
+               'id_organizacao'], clauses=['where', 'ord'])
+    print('\n# Removendo escopo subconsulta')
+    endScope()
+    print('\n# Removendo escopo select')
+    endScope()
+    print('\n# Criando escopo truncate')
+    beginScope('truncate')
+    print('\n# Adicionando comando truncate')
+    addCommand('truncate', 'funcionario')
+    print('\n# Removendo escopo truncate')
+    endScope()
+
+
+if __name__ == "__main__":
+    main()
