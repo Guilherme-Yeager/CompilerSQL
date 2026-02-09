@@ -51,7 +51,7 @@ class AssemblyVisitor(AbstractVisitor):
         self.table_atual = select.table.name.lower()
         st_asm.addCommand('select', table=self.table_atual)
         select.table.accept(self)
-        self.data.add((f'caminho_{self.table_atual}',
+        self.data.add((f'caminho_{self.nome_banco}_{self.nome_schema}_{self.table_atual}',
                       f'.asciiz "{self.caminho_arquivo_base}/{self.table_atual}/{self.table_atual}.csv"'))
         self.data.add(('conteudoArquivo', f'.space {self.tamanho_buffer}'))
         select.columns.accept(self)
@@ -62,7 +62,8 @@ class AssemblyVisitor(AbstractVisitor):
     def visitSelectAll(self, select):
         code = self.getList()
         code.append(f'    li $v0, 13 # Abrir arquivo')
-        code.append(f'    la $a0, caminho_{self.table_atual}')
+        code.append(
+            f'    la $a0, caminho_{self.nome_banco}_{self.nome_schema}_{self.table_atual}')
         code.append(f'    li $a1, 0 # Modo leitura')
         code.append(f'    syscall\n')
         code.append(f'    move $s0, $v0')
