@@ -1,7 +1,7 @@
 import compiler.src.semantic.symbol_table as st
 from compiler.src.visitor.visitor import *
 from compiler.src.schema.schema import Schema
-
+from compiler.src.sintaxe.sintaxe_abstrata import FactorNull
 
 class SemanticVisitor(AbstractVisitor):
 
@@ -165,7 +165,8 @@ class SemanticVisitor(AbstractVisitor):
             self.n_errors += 1
 
     def visitExpressionBool(self, expression):
-        pass
+        expression.left.accept(self)
+        expression.right.accept(self)
 
     def visitExpressionNullCheck(self, expression):
         tipo = expression.expression.accept(self)
@@ -176,14 +177,150 @@ class SemanticVisitor(AbstractVisitor):
                       f"Coluna '{nome_coluna}' não existe na tabela '{self.table_atual}'.")
                 self.n_errors += 1
 
+    def normalizar_tipo(self, tipo):
+        if tipo is None:
+            return None
+        tipo = tipo.lower()
+        if tipo.startswith("varchar") or tipo == SemanticVisitor.TIPO_STR:
+            return SemanticVisitor.TIPO_STR
+        if tipo == SemanticVisitor.TIPO_INT:
+            return SemanticVisitor.TIPO_INT
+        return tipo
+
+
     def visitInsert(self, insert):
-        pass
+        st.beginScope('insert')
+
+        insert.table.accept(self)
+        self.table_atual = insert.table.name
+        self.comando_atual = 'INSERT'
+
+        if not self.schema.existe_tabela_insert(self.table_atual):
+            print(
+                f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (INSERT)> : "
+                f"Tabela '{self.table_atual}' não existe no schema."
+            )
+            self.n_errors += 1
+            st.endScope()
+            return
+
+        if insert.columns:
+            colunas = []
+            for col in insert.columns.columns_list:
+                if not self.schema.existe_coluna(self.table_atual, col.name):
+                    print(
+                        f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (INSERT)> : "
+                        f"Coluna '{col.name}' não existe na tabela '{self.table_atual}'."
+                    )
+                    self.n_errors += 1
+                    st.endScope()
+                    return
+                colunas.append(col.name)
+        else:
+            colunas = list(self.schema.schema[self.table_atual]["columns"].keys())
+
+        valores = insert.parameters
+
+        if len(colunas) != len(valores):
+            print(
+                f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (INSERT)> : "
+                f"Número de colunas diferente do número de valores."
+            )
+            self.n_errors += 1
+            st.endScope()
+            return
+
+        for coluna, valor in zip(colunas, valores):
+            restricoes = self.schema.buscar_restricao_coluna(self.table_atual, coluna)
+
+            if "not null" in restricoes and isinstance(valor, FactorNull):
+                print(
+                    f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (INSERT)> : "
+                    f"Coluna '{coluna}' não aceita NULL."
+                )
+                self.n_errors += 1
+                continue
+
+            tipo_coluna = self.normalizar_tipo(
+                self.schema.buscar_tipo_coluna(self.table_atual, coluna)
+            )
+            tipo_valor = self.normalizar_tipo(
+                self.buscar_tipo_factor(valor)
+            )
+
+            if tipo_coluna != tipo_valor:
+                print(
+                    f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (INSERT)> : "
+                    f"Tipo incompatível na coluna '{coluna}'."
+                )
+                self.n_errors += 1
+
+        self.table_atual = None
+        self.comando_atual = ''
+        st.endScope()
+
 
     def visitAssignmentUpdate(self, update):
-        pass
+        nome_coluna = update.column.name
+
+        if not self.schema.existe_coluna(self.table_atual, nome_coluna):
+            print(
+                f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (UPDATE)> : "
+                f"Coluna '{nome_coluna}' não existe na tabela '{self.table_atual}'."
+            )
+            self.n_errors += 1
+            return
+
+        restricoes = self.schema.buscar_restricao_coluna(self.table_atual, nome_coluna)
+
+        if "not null" in restricoes and isinstance(update.value, FactorNull):
+            print(
+                f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (UPDATE)> : "
+                f"Coluna '{nome_coluna}' não aceita NULL."
+            )
+            self.n_errors += 1
+            return
+
+        tipo_coluna = self.normalizar_tipo(
+            self.schema.buscar_tipo_coluna(self.table_atual, nome_coluna)
+        )
+        tipo_valor = self.normalizar_tipo(
+            self.buscar_tipo_factor(update.value)
+        )
+
+        if tipo_coluna != tipo_valor:
+            print(
+                f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (UPDATE)> : "
+                f"Tipo incompatível na coluna '{nome_coluna}'."
+            )
+            self.n_errors += 1
 
     def visitUpdate(self, update):
-        pass
+        st.beginScope('update')
+
+        update.table.accept(self)
+        self.table_atual = update.table.name
+        self.comando_atual = 'UPDATE'
+
+        if not self.schema.existe_tabela(self.table_atual):
+            print(
+                f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (UPDATE)> : "
+                f"Tabela '{self.table_atual}' não existe no schema."
+            )
+            self.n_errors += 1
+            st.endScope()
+            return
+
+        for assignment in update.set_list:
+            assignment.accept(self)
+
+        if update.where:
+            update.where.accept(self)
+
+        self.table_atual = None
+        self.comando_atual = ''
+        st.endScope()
+
 
     def buscar_tipo_factor(self, factor):
         '''
@@ -207,7 +344,6 @@ class SemanticVisitor(AbstractVisitor):
                 return None
             return self.schema.buscar_tipo_coluna(self.table_atual, nome_coluna)
         return tipo
-
 
 def main(text_sql=None, schema=None, mode_output=1):
     lexer = lex.lex()
