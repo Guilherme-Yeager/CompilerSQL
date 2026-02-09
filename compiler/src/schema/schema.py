@@ -4,8 +4,8 @@ import json
 class Schema():
 
     def __init__(self):
-        self.nome_banco_atual = "master"
-        self.nome_schema_atual = "dbo"
+        self.nome_banco_atual = "engs_ufs"
+        self.nome_schema_atual = "biotlab"
         self.caminho_catalogo = "compiler/resources/catalog.json"
         try:
             with open(self.caminho_catalogo, 'r') as file:
@@ -61,6 +61,15 @@ class Schema():
         '''
         nome_banco = nome_banco.lower()
         return nome_banco in self.listar_bancos()
+
+    def existe_tabela_insert(self, nome_tabela):
+        nome_tabela = nome_tabela.lower()
+        if not self.existe_banco(self.nome_banco_atual):
+            return False
+        if not self.schema:
+            self.carregar_schema()
+        return nome_tabela in self.schema and self.schema[nome_tabela].get("bindable", "") == "table"
+
 
     def existe_tabela(self, nome_tabela):
         '''
