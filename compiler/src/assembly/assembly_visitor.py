@@ -1,4 +1,3 @@
-import os
 import compiler.src.assembly.symbol_table_asm as st_asm
 import compiler.src.semantic.semantic_visitor as sv
 from compiler.src.schema.schema import Schema
@@ -136,7 +135,7 @@ class AssemblyVisitor(AbstractVisitor):
             finalcode.append(".data")
             for label, valor in self.data:
                 finalcode.append(f"    {label}: {valor}")
-        finalcode = finalcode + self.text
+        finalcode.extend(self.text)
         finalcode.append("    j end\n")
         finalcode.extend(self.funcs)
         finalcode.append("\nend:")
@@ -167,6 +166,7 @@ def main(nome_banco, nome_schema, schema=Schema(), text_sql=None):
     result.accept(asmvisitor)
     with open(f'compiler/resources/output.asm', 'w', encoding='utf-8') as file:
         file.write(asmvisitor.get_code())
+    st_asm.clearSymbolTable()
     print("\n# Arquivo assembly gerado com sucesso!\n")
 
 

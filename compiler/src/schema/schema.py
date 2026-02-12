@@ -4,8 +4,8 @@ import json
 class Schema():
 
     def __init__(self):
-        self.nome_banco_atual = "engs_ufs"
-        self.nome_schema_atual = "biotlab"
+        self.nome_banco_atual = "master"
+        self.nome_schema_atual = "dbo"
         self.caminho_catalogo = "compiler/resources/catalog.json"
         try:
             with open(self.caminho_catalogo, 'r') as file:
