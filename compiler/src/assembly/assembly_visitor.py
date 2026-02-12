@@ -36,15 +36,42 @@ class AssemblyVisitor(AbstractVisitor):
         pass
 
     def visitDropDatabase(self, command):
-        pass
+        command.database.accept(self)
+        database = command.database.name.lower()
+        st_asm.addCommand('drop_db', database=database)
+        indice = st_asm.getContadorComandos()
+        var_db = f'caminho_db_{database}_{indice}'
+        caminho_db = f'databases/{database}'
+        self.data.add((var_db, f'.asciiz "{caminho_db}"'))
+        code = self.getList()
+        code.append(f'\n    # Deletar banco {database}')
+        code.append('    addi $sp, $sp, -8')
+        code.append('    sw $ra, 0($sp)')
+        code.append('    sw $fp, 4($sp)')
+        code.append(f'    jal drop_db_{indice}')
+        code.append('    lw $fp, 4($sp)')
+        code.append('    lw $ra, 0($sp)')
+        code.append('    addi $sp, $sp, 8')
+        st_asm.beginScope('delete_db')
+        code = self.funcs
+        code.append(f'drop_db_{indice}:')
+        code.append(f'    move $fp, $sp')
+        code.append(f'    la $a0, {var_db}')
+        code.append(f'    li $v0, 100           # Syscall RemoveDir')
+        code.append(f'    syscall')
+        code.append(f'    li $t0, 1')
+        code.append(f'    beq $v0, $t0, print_sucesso_rm_dir')
+        code.append(f'    j print_falha_rm_dir\n')
+        
+        st_asm.endScope()
 
     def visitDropTable(self, command):
         table = command.table.name.lower()
-        indice = st_asm.getContadorComandos()
         st_asm.addCommand('delete', table=table)
+        indice = st_asm.getContadorComandos()
         var_arquivo = f'caminho_{self.nome_banco}_{self.nome_schema}_{table}'
         code = self.getList()
-        code.append(f'\n    # Deletar diretório da tabela {command.table.name}')
+        code.append(f'\n    # Deletar da tabela {command.table.name}')
         code.append('    addi $sp, $sp, -8')
         code.append('    sw $ra, 0($sp)')
         code.append('    sw $fp, 4($sp)')
@@ -56,14 +83,14 @@ class AssemblyVisitor(AbstractVisitor):
         command.table.accept(self)
         self.data.add((f'caminho_{self.nome_banco}_{self.nome_schema}_{table}', f'.asciiz "{self.caminho_arquivo_base}/{table}"'))
         code = self.getList()
-        code.append(f'delete_{st_asm.getContadorComandos()}:')
+        code.append(f'delete_{indice}:')
         code.append(f'    move $fp, $sp')
         code.append(f'    la $a0, {var_arquivo}')
         code.append(f'    li $v0, 100  # RemoveDir')
         code.append(f'    syscall')
         code.append(f'    li $t0, 1')
         code.append(f'    beq $v0, $t0, print_sucesso_rm_dir')
-        code.append(f'    j print_falha_rm_dir')
+        code.append(f'    j print_falha_rm_dir\n')
         st_asm.endScope()
 
         
@@ -103,7 +130,7 @@ class AssemblyVisitor(AbstractVisitor):
         code.append(f'    syscall\n')
         code.append(f'    li $v0, 16 # Fechar arquivo')
         code.append(f'    move $a0, $s0')
-        code.append(f'    syscall')
+        code.append(f'    syscall\n')
 
     def visitColumns(self, columns):
         pass
@@ -175,8 +202,7 @@ class AssemblyVisitor(AbstractVisitor):
     
     def criar_funcoes_feedback(self):
         """Cria funções que apenas imprimem as mensagens e retornam"""
-        self.funcs.append('\n# --- Sub-rotinas de Feedback ---')
-        
+        self.funcs.append('# --- Sub-rotinas de Feedback ---')
         self.funcs.append('print_sucesso_rm_dir:')
         self.funcs.append('    la $a0, mensagem_arquivo_dir_sucesso')
         self.funcs.append('    li $v0, 4')
@@ -205,13 +231,14 @@ def main(nome_banco, nome_schema, schema=Schema(), text_sql=None):
         result.accept(svisitor)
         if svisitor.n_errors > 0:
             print(
-                f'\nForam encontrados {svisitor.n_errors} erros semânticos. O código assembly foi gerado.')
+                f'\nForam encontrados {svisitor.n_errors} erros semânticos.')
             return
     asmvisitor = AssemblyVisitor(nome_banco, nome_schema)
     result.accept(asmvisitor)
     with open(f'compiler/resources/output.asm', 'w', encoding='utf-8') as file:
         file.write(asmvisitor.get_code())
     st_asm.clearSymbolTable()
+    svisitor.schema.reset_catalogo()
     print("\n# Arquivo assembly gerado com sucesso!\n")
 
 

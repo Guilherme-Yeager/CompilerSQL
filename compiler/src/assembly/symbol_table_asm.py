@@ -63,7 +63,7 @@ def getSP():
 def getContadorComandos():
     if not symbolTableAsm:
         return 0
-    return len(symbolTableAsm[-1]) - 1
+    return len(symbolTableAsm[-1]) - 2
 
 def getBindable(bindableName):
     for i in reversed(range(len(symbolTableAsm))):
