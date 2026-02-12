@@ -61,13 +61,12 @@ class AssemblyVisitor(AbstractVisitor):
         code.append(f'    syscall')
         code.append(f'    li $t0, 1')
         code.append(f'    beq $v0, $t0, print_sucesso_rm_dir')
-        code.append(f'    j print_falha_rm_dir\n')
-        
+        code.append(f'    j print_falha_rm_dir\n')     
         st_asm.endScope()
 
     def visitDropTable(self, command):
         table = command.table.name.lower()
-        st_asm.addCommand('delete', table=table)
+        st_asm.addCommand('drop_table', table=table)
         indice = st_asm.getContadorComandos()
         var_arquivo = f'caminho_{self.nome_banco}_{self.nome_schema}_{table}'
         code = self.getList()
@@ -75,7 +74,7 @@ class AssemblyVisitor(AbstractVisitor):
         code.append('    addi $sp, $sp, -8')
         code.append('    sw $ra, 0($sp)')
         code.append('    sw $fp, 4($sp)')
-        code.append(f'    jal delete_{indice}')
+        code.append(f'    jal drop_table_{indice}')
         code.append('    lw $fp, 4($sp)')
         code.append('    lw $ra, 0($sp)')
         code.append('    addi $sp, $sp, 8')
@@ -83,7 +82,7 @@ class AssemblyVisitor(AbstractVisitor):
         command.table.accept(self)
         self.data.add((f'caminho_{self.nome_banco}_{self.nome_schema}_{table}', f'.asciiz "{self.caminho_arquivo_base}/{table}"'))
         code = self.getList()
-        code.append(f'delete_{indice}:')
+        code.append(f'drop_table_{indice}:')
         code.append(f'    move $fp, $sp')
         code.append(f'    la $a0, {var_arquivo}')
         code.append(f'    li $v0, 100  # RemoveDir')
