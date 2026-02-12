@@ -47,7 +47,7 @@ A estrutura do projeto foi organizada de forma modular, separando claramente cad
 <h1 align="center">🎮 Simulador MIPS</h1>
 
 Para executar o assembly MIPS gerado na etapa de geração de código, este projeto utiliza uma versão customizada do **MARS**.
-As necessidades do compilador exigiu a manipulação de diretórios e arquivos de dados (CSV), delegando, assim, essas tarefas ao Java através de **Syscalls** personalizadas.
+As necessidades do compilador exigiram a manipulação de diretórios e arquivos de dados (CSV), delegando, assim, essas tarefas ao java através de **Syscalls** personalizadas.
 
 * **Projeto Original:** [MARS - MIPS Assembler and Runtime Simulator](https://github.com/dpetersanderson/MARS).
 * **Customizações desenvolvidas:** ...
