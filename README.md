@@ -44,6 +44,15 @@ A estrutura do projeto foi organizada de forma modular, separando claramente cad
       └── sintatico.md
 ```
 
+<h1 align="center">🎮 Simulador MIPS (Custom MARS)</h1>
+
+Para executar o assembly MIPS gerado na etapa de geração de código, este projeto utiliza uma versão customizada do **MARS**.
+As necessidades do compilador exigiu a manipulação de diretórios e arquivos de dados (CSV), delegando, assim, essas tarefas ao Java através de **Syscalls** personalizadas.
+
+* **Projeto Original:** [MARS - MIPS Assembler and Runtime Simulator](https://github.com/dpetersanderson/MARS).
+* **Customizações desenvolvidas:** ...
+* **Localização no Projeto:** O core modificado reside em `compiler/resources/MARS`.
+
 <h1 align="center">📃 Integração com o SGBD</h1>
 
 Nesta etapa, assume-se que o SGBD fornece ao compilador, por meio do caminho padrão `resources/catalog.json`, as informações necessárias para a análise semântica.
