@@ -10,7 +10,7 @@ class AssemblyVisitor(AbstractVisitor):
         st_asm.beginScope(st_asm.SCOPE_MAIN)
         self.funcs = []
         self.text = ['\n.text', '    move $fp, $sp']
-        self.data = set()
+        self.data = set([('mensagem_arquivo_dir_sucesso', f'.asciiz "Recurso deletado com sucesso!"'), ('mensagem_arquivo_dir_falha', f'.asciiz "Recurso não deletado."')])
         self.rotulos = {}
         self.tamanho_buffer = 1024
 
@@ -39,10 +39,37 @@ class AssemblyVisitor(AbstractVisitor):
         pass
 
     def visitDropTable(self, command):
-        pass
+        table = command.table.name.lower()
+        indice = st_asm.getContadorComandos()
+        st_asm.addCommand('delete', table=table)
+        var_arquivo = f'caminho_{self.nome_banco}_{self.nome_schema}_{table}'
+        code = self.getList()
+        code.append(f'\n    # Deletar diretório da tabela {command.table.name}')
+        code.append('    addi $sp, $sp, -8')
+        code.append('    sw $ra, 0($sp)')
+        code.append('    sw $fp, 4($sp)')
+        code.append(f'    jal delete_{indice}')
+        code.append('    lw $fp, 4($sp)')
+        code.append('    lw $ra, 0($sp)')
+        code.append('    addi $sp, $sp, 8')
+        st_asm.beginScope('select')
+        command.table.accept(self)
+        self.data.add((f'caminho_{self.nome_banco}_{self.nome_schema}_{table}', f'.asciiz "{self.caminho_arquivo_base}/{table}"'))
+        code = self.getList()
+        code.append(f'delete_{st_asm.getContadorComandos()}:')
+        code.append(f'    move $fp, $sp')
+        code.append(f'    la $a0, {var_arquivo}')
+        code.append(f'    li $v0, 100  # RemoveDir')
+        code.append(f'    syscall')
+        code.append(f'    li $t0, 1')
+        code.append(f'    beq $v0, $t0, print_sucesso_rm_dir')
+        code.append(f'    j print_falha_rm_dir')
+        st_asm.endScope()
 
+        
     def visitSelect(self, select):
         code = self.getList()
+        code.append(f'\n    # SELECT na tabela {select.table.name}')    
         code.append(f'    jal select_{st_asm.getContadorComandos()}')
         st_asm.beginScope('select')
         code = self.getList()
@@ -136,13 +163,31 @@ class AssemblyVisitor(AbstractVisitor):
             for label, valor in self.data:
                 finalcode.append(f"    {label}: {valor}")
         finalcode.extend(self.text)
+        finalcode.append("\n    # Encerrar programa")
         finalcode.append("    j end\n")
+        self.criar_funcoes_feedback()
         finalcode.extend(self.funcs)
         finalcode.append("\nend:")
         finalcode.append("    li $v0, 10")
         finalcode.append("    syscall")
 
         return "\n".join(finalcode)
+    
+    def criar_funcoes_feedback(self):
+        """Cria funções que apenas imprimem as mensagens e retornam"""
+        self.funcs.append('\n# --- Sub-rotinas de Feedback ---')
+        
+        self.funcs.append('print_sucesso_rm_dir:')
+        self.funcs.append('    la $a0, mensagem_arquivo_dir_sucesso')
+        self.funcs.append('    li $v0, 4')
+        self.funcs.append('    syscall')
+        self.funcs.append('    jr $ra')
+
+        self.funcs.append('\nprint_falha_rm_dir:')
+        self.funcs.append('    la $a0, mensagem_arquivo_dir_falha')
+        self.funcs.append('    li $v0, 4')
+        self.funcs.append('    syscall')
+        self.funcs.append('    jr $ra')
 
 
 def main(nome_banco, nome_schema, schema=Schema(), text_sql=None):
