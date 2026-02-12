@@ -1,4 +1,6 @@
 import tkinter as tk
+import subprocess
+import os
 import compiler.src.assembly.assembly_visitor as av
 from compiler.src.schema.schema import Schema
 
@@ -48,13 +50,21 @@ class Screen():
             ), self.schema, self.caixa_texto.get("1.0", tk.END))
         )
         menu.add_cascade(label="Assembly", menu=menu_gerador_assembly)
+        menu_simulador = tk.Menu(menu, tearoff=0)
+        menu_simulador.add_command(
+            label="MARS", 
+            command=self.abrir_mars
+        )
+        menu.add_cascade(label="Simulador", menu=menu_simulador)
         menu_saida = tk.Menu(menu, tearoff=0)
         menu_saida.add_radiobutton(
             label="SQL", variable=self.opcao_saida, value=1)
         menu_saida.add_radiobutton(
             label="XML", variable=self.opcao_saida, value=2)
         menu.add_cascade(label="Saída", menu=menu_saida)
+        
         self.janela.config(menu=menu)
+        
 
     def add_widgets(self):
         frame_superior = tk.Frame(self.janela)
@@ -120,6 +130,16 @@ class Screen():
                     command=lambda s=schema: self.nome_schema_atual.set(s)
                 )
         self.schema.definir_banco_atual(self.nome_banco_atual.get())
+
+    def abrir_mars(self):
+        caminho_mars = os.path.join("compiler", "resources")
+        try:
+            subprocess.Popen(
+                ["java", "-cp", "MARS/.", "Mars"], 
+                cwd=caminho_mars
+            )
+        except Exception as e:
+            print(f"Erro ao abrir o MARS: {e}")
 
     def executar_analisador(self, opcao_analisador, texto_sql, mode_output):
         if opcao_analisador == 1:
