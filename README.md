@@ -44,7 +44,7 @@ A estrutura do projeto foi organizada de forma modular, separando claramente cad
       └── sintatico.md
 ```
 
-<h1 align="center">🎮 Simulador MIPS (Custom MARS)</h1>
+<h1 align="center">🎮 Simulador MIPS</h1>
 
 Para executar o assembly MIPS gerado na etapa de geração de código, este projeto utiliza uma versão customizada do **MARS**.
 As necessidades do compilador exigiu a manipulação de diretórios e arquivos de dados (CSV), delegando, assim, essas tarefas ao Java através de **Syscalls** personalizadas.
