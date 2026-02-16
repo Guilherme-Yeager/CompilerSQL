@@ -9,8 +9,16 @@ A estrutura do projeto foi organizada de forma modular, separando claramente cad
 ```shell
   compiler/
   ├── resources/
+  |   ├── databases/ # Bancos (camada física)
+  |   ├── MARS/ # Simulador para execução do código (.asm)
+  |   ├── output.asm # Resultado da geração de código
+  |   ├── transactions.log # Registros das transações realizadas durante a geração de código
   │   └── catalog.json # Catálogo fornecido pelo SGBD adaptado ao escopo do projeto 
   ├── src/
+  │   └── assembly/ # Etapa de geração de código
+  |   |   ├── __init__.py
+  |   |   ├── assembly_visitor.py
+  |   |   └── symbol_table_asm.py
   │   └── lexer/ # Etapa léxica
   |   |   ├── __init__.py
   |   |   └── lexer.py
@@ -35,6 +43,7 @@ A estrutura do projeto foi organizada de forma modular, separando claramente cad
   |   |   ├── abstract_visitor.py
   |   |   ├── aux_visitor_print.py
   |   |   └── visitor.py
+  |   ├── __init__.py
   |   └── main.py
   ├── test/
   |   └── test.sql # Arquivo padrão de entrada
@@ -43,6 +52,10 @@ A estrutura do projeto foi organizada de forma modular, separando claramente cad
       ├── lexico.md
       └── sintatico.md
 ```
+
+<h1 align="center">모 Visão arquitetural</h1>
+
+<img width="5400" height="3531" alt="Sem título-2025-07-30-1115" src="https://github.com/user-attachments/assets/a9dd2882-1146-4a32-a5cd-4bfb5e73e140" />
 
 <h1 align="center">🎮 Simulador MIPS</h1>
 
@@ -62,28 +75,98 @@ A seguir, um exemplo de catálogo padrão utilizado pelo compilador:
 
 ```json
 {
-  "biotlab": {
-    "bindable": "scheme",
-    "funcionario": {
-      "bindable": "table",
-      "columns": {
-        "id": [
-          "int",
-          "primary key"
-        ],
-        "nome": [
-          "varchar(50)",
-          "not null"
-        ],
-        "cpf": [
-          "varchar(11)",
-          "not null",
-          "unique"
-        ]
-      }
+    "master": {
+        "bindable": "database",
+        "dbo": {
+            "bindable": "scheme"
+        }
+    },
+    "model": {
+        "bindable": "database",
+        "dbo": {
+            "bindable": "scheme"
+        }
+    },
+    "msdb": {
+        "bindable": "database",
+        "dbo": {
+            "bindable": "scheme"
+        }
+    },
+    "tempdb": {
+        "bindable": "database",
+        "dbo": {
+            "bindable": "scheme"
+        }
+    },
+    "engs_ufs": {
+        "bindable": "database",
+        "dbo": {
+            "bindable": "scheme"
+        },
+        "biotlab": {
+            "bindable": "scheme",
+            "funcionario": {
+                "bindable": "table",
+                "columns": {
+                    "id": [
+                        "int",
+                        "primary key"
+                    ],
+                    "nome": [
+                        "varchar(50)",
+                        "not null"
+                    ],
+                    "cpf": [
+                        "varchar(11)",
+                        "not null",
+                        "unique"
+                    ]
+                }
+            },
+            "animal": {
+                "bindable": "table",
+                "columns": {
+                    "id": [
+                        "int",
+                        "primary key"
+                    ],
+                    "nome": [
+                        "string",
+                        "not null"
+                    ],
+                    "id_bioterio": [
+                        "int",
+                        "foreign key"
+                    ]
+                }
+            }
+        },
+        "cuidado": {
+            "bindable": "scheme",
+            "paciente": {
+                "bindable": "table",
+                "columns": {
+                    "id": [
+                        "int",
+                        "primary key"
+                    ],
+                    "nome": [
+                        "varchar(50)",
+                        "not null"
+                    ]
+                }
+            }
+        }
+    },
+    "nunes": {
+        "bindable": "database",
+        "dbo": {
+            "bindable": "scheme"
+        }
     }
-  }
 }
 ```
+
 
 ⚠️ Projeto em andamento...
