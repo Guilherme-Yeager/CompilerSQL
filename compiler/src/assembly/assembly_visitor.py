@@ -10,10 +10,12 @@ class AssemblyVisitor(AbstractVisitor):
         st_asm.beginScope(st_asm.SCOPE_MAIN)
         self.funcs = []
         self.text = ['\n.text', '    move $fp, $sp']
-        self.data = set([('mensagem_arquivo_dir_sucesso', f'.asciiz "Recurso deletado com sucesso!"'), ('mensagem_arquivo_dir_falha', f'.asciiz "Recurso não deletado."')])
+        self.data = set([('mensagem_arquivo_dir_sucesso', f'.asciiz "Recurso deletado com sucesso!\\n"'), ('mensagem_arquivo_dir_falha', f'.asciiz "Recurso não deletado.\\n"'), 
+                         ('log_file', f'.asciiz "transactions.log"')])
         self.rotulos = {}
         self.tamanho_buffer = 1024
 
+        self.acoes_log = []
         self.nome_banco = nome_banco
         self.nome_schema = nome_schema
         self.caminho_arquivo_base = f'databases/{self.nome_banco}/schemes/{self.nome_schema}/tables'
@@ -61,7 +63,8 @@ class AssemblyVisitor(AbstractVisitor):
         code.append(f'    syscall')
         code.append(f'    li $t0, 1')
         code.append(f'    beq $v0, $t0, print_sucesso_rm_dir')
-        code.append(f'    j print_falha_rm_dir\n')     
+        code.append(f'    j print_falha_rm_dir\n')
+        self.acoes_log.append(f'D, DATABASE, {caminho_db}') 
         st_asm.endScope()
 
     def visitDropTable(self, command):
@@ -90,6 +93,7 @@ class AssemblyVisitor(AbstractVisitor):
         code.append(f'    li $t0, 1')
         code.append(f'    beq $v0, $t0, print_sucesso_rm_dir')
         code.append(f'    j print_falha_rm_dir\n')
+        self.acoes_log.append(f'D, TABLE, {self.caminho_arquivo_base}/{table}')
         st_asm.endScope()
 
         
@@ -181,23 +185,34 @@ class AssemblyVisitor(AbstractVisitor):
     def getList(self):
         return self.text if st_asm.getScope() == f'{st_asm.SCOPE_MAIN}_1' else self.funcs
 
-    # gera código assembly
     def get_code(self):
         finalcode = []
+        mensagem_log = "\\n".join(self.acoes_log) + "\\n" if self.acoes_log else ""
+        if self.acoes_log:
+            self.data.add(("mensagem_log", f'.asciiz "{mensagem_log}"'))
         if self.data:
             finalcode.append(".data")
-            for label, valor in self.data:
+            for label, valor in sorted(self.data):
                 finalcode.append(f"    {label}: {valor}")
+    
         finalcode.extend(self.text)
+
+        if self.acoes_log:
+            finalcode.append("\n    # Registrar log completo das operações")
+            finalcode.append("    la $a1, mensagem_log")
+            finalcode.append(f"    li $a2, {len(mensagem_log) - len(self.acoes_log)}")
+            finalcode.append("    jal gravar_log")
         finalcode.append("\n    # Encerrar programa")
         finalcode.append("    j end\n")
+
         self.criar_funcoes_feedback()
+        self.criar_funcao_log()
         finalcode.extend(self.funcs)
         finalcode.append("\nend:")
         finalcode.append("    li $v0, 10")
         finalcode.append("    syscall")
-
         return "\n".join(finalcode)
+
     
     def criar_funcoes_feedback(self):
         """Cria funções que apenas imprimem as mensagens e retornam"""
@@ -211,6 +226,24 @@ class AssemblyVisitor(AbstractVisitor):
         self.funcs.append('\nprint_falha_rm_dir:')
         self.funcs.append('    la $a0, mensagem_arquivo_dir_falha')
         self.funcs.append('    li $v0, 4')
+        self.funcs.append('    syscall')
+        self.funcs.append('    jr $ra')
+    
+    def criar_funcao_log(self):
+        self.funcs.append('\n# --- Gravação de Log ---')
+        self.funcs.append('gravar_log:')
+        self.funcs.append('    move $t8, $a1')
+        self.funcs.append('    move $t9, $a2')
+        self.funcs.append('    la $a0, log_file')
+        self.funcs.append('    li $a1, 1')
+        self.funcs.append('    li $v0, 13')
+        self.funcs.append('    syscall')
+        self.funcs.append('    move $a0, $v0')
+        self.funcs.append('    move $a1, $t8')
+        self.funcs.append('    move $a2, $t9')
+        self.funcs.append('    li $v0, 15')
+        self.funcs.append('    syscall')
+        self.funcs.append('    li $v0, 16')
         self.funcs.append('    syscall')
         self.funcs.append('    jr $ra')
 
@@ -228,6 +261,7 @@ def main(nome_banco, nome_schema, schema=Schema(), text_sql=None):
     svisitor = sv.SemanticVisitor(schema)
     if result:
         result.accept(svisitor)
+        svisitor.schema.reset_catalogo()
         if svisitor.n_errors > 0:
             print(
                 f'\nForam encontrados {svisitor.n_errors} erros semânticos.')
@@ -237,7 +271,6 @@ def main(nome_banco, nome_schema, schema=Schema(), text_sql=None):
     with open(f'compiler/resources/output.asm', 'w', encoding='utf-8') as file:
         file.write(asmvisitor.get_code())
     st_asm.clearSymbolTable()
-    svisitor.schema.reset_catalogo()
     print("\n# Arquivo assembly gerado com sucesso!\n")
 
 
