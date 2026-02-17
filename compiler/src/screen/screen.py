@@ -161,13 +161,16 @@ class Screen():
         elif opcao_analisador == 2:
             self.executar_sintatico(texto_sql.strip(), mode_output)
         elif opcao_analisador == 3:
+            self.schema.atualizar_catalogo()
             self.executar_semantico(
                 texto_sql.strip(), self.schema, mode_output)
             self.schema.atualizar_catalogo()
             self.atualizar_menus_interface()
 
     def gerar_assembly(self, nome_banco, nome_schema, schema, texto_sql):
+        self.schema.atualizar_catalogo()
         av.main(nome_banco, nome_schema, schema, texto_sql.strip())
+        self.schema.atualizar_catalogo()
         self.atualizar_menus_interface()
 
     def executar(self):

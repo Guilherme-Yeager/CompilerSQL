@@ -257,7 +257,9 @@ class Schema():
                 elif tipo_objeto == 'table':
                     database, schema, table = caminho_partes[1], caminho_partes[3], caminho_partes[5]
                     del catalogo[database][schema][table]
-                    
+        
+        self.catalogo = catalogo
+        
         with open(self.caminho_catalogo, 'w') as file:
             json.dump(self.catalogo, file, indent=4)
 
