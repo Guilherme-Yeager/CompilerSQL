@@ -1,3 +1,4 @@
+import token
 import ply.lex as lex
 
 reserved = {
@@ -90,7 +91,7 @@ t_COMMA = r','
 t_SEMICOLON = r';'
 t_DOT = r'\.'
 
-
+    
 def t_ID(t):
     r'[A-Za-z_][A-Za-z0-9_]*|\[[^\]]+\]'
     t.type = reserved.get(t.value.lower(), 'ID')
@@ -109,16 +110,17 @@ def t_COMMENT_MULTILINE(t):
     r'/\*(.|\n)*?\*/'
     pass
 
-collumn = -1
+def find_column(input, token):
+    line_start = input.rfind('\n', 0, token.lexpos) + 1
+    return (token.lexpos - line_start) + 1
 
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
-    global collumn
-    collumn = t.lexer.lexpos - 1
 
 def t_error(t):
-   print("Illegal character '%s'" % t.value[0], ', line:', t.lineno, ', column: ', t.lexpos - collumn)
+   col = find_column(t.lexer.lexdata, t)
+   print("Illegal character '%s'" % t.value[0], ', line:', t.lineno, ', column: ', col)
    t.lexer.skip(1)
 
 def main(text_sql=None):
@@ -131,7 +133,8 @@ def main(text_sql=None):
         file.close()
     print('\n# Lexer output:\n')
     for tok in lexer:
-        print('type:', tok.type, ', value:', tok.value, ', line:', tok.lineno, ', column: ', tok.lexpos - collumn)
+        col = find_column(lexer.lexdata, tok)
+        print('type:', tok.type, ', value:', tok.value, ', line:', tok.lineno, ', column: ', col)
     print()
 
 if __name__ == "__main__":
