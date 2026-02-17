@@ -1,4 +1,3 @@
-import os
 import compiler.src.assembly.symbol_table_asm as st_asm
 import compiler.src.semantic.semantic_visitor as sv
 from compiler.src.schema.schema import Schema
@@ -21,7 +20,8 @@ class AssemblyVisitor(AbstractVisitor):
         self.nome_schema = nome_schema
         self.caminho_arquivo_base = f'databases/{self.nome_banco}/schemes/{self.nome_schema}/tables'
         self.table_atual = None
-        self.limpar_dados = False # Flag para indicar se a função de limpeza de dados deve ser criada
+        self.limpar_dados = False # Flag para indicar se a função de deletar todas as linhas ser criada
+        self.contador_funcoes = 1
 
     def visitEmptyScript(self, _):
         return
@@ -31,37 +31,66 @@ class AssemblyVisitor(AbstractVisitor):
         command.script.accept(self)
 
     def visitTruncate(self, command):
+        st_asm.beginScope('truncate')
         table = command.table.name.lower()
         st_asm.addCommand('truncate', table=table)
-        indice = st_asm.getContadorComandos()
         caminho_tb = f'{self.caminho_arquivo_base}/{table}/{table}.csv'
         with open(f'compiler/resources/{caminho_tb}', 'r') as file:
             linha = file.readline().strip()
-        var_tb = f'caminho_truncate_{table}_{indice}'
-        var_cabecalho = f'cabecalho_truncate_{table}_{indice}'
+            
+        var_tb = f'caminho_truncate_{table}_{self.contador_funcoes}'
+        var_cabecalho = f'cabecalho_truncate_{table}_{self.contador_funcoes}'
         self.data.add((var_tb, f'.asciiz "{caminho_tb}"'))
         self.data.add((var_cabecalho, f'.asciiz "{linha}\\n"'))
 
-        code = self.getList()
-        code.append(f'\n    # TRUNCATE na tabela {table}')
-        code.append(f'    la $a0, {var_tb}')
-        code.append(f'    la $a1, {var_cabecalho}')
-        code.append(f'    li $a2, {len(linha) + 1}')
-        code.append(f'    jal limpar_dados_tabela')
+        self.text.append(f'\n    # TRUNCATE na tabela {table}')
+        self.text.append(f'    la $a0, {var_tb}')
+        self.text.append(f'    la $a1, {var_cabecalho}')
+        self.text.append(f'    li $a2, {len(linha) + 1}')
+        self.text.append(f'    jal limpar_dados_tabela')
+        
         self.limpar_dados = True
+        self.contador_funcoes += 1
+        st_asm.endScope()
 
     def visitCreateDatabase(self, command):
         pass
 
     def visitDelete(self, delete):
-        pass
+        st_asm.beginScope('delete')
+        table = delete.table.name.lower()
+        
+        if not delete.where:
+            st_asm.addCommand('delete_all', table=table)
+            caminho_tb = f'{self.caminho_arquivo_base}/{table}/{table}.csv'
+            with open(f'compiler/resources/{caminho_tb}', 'r') as file:
+                linha = file.readline().strip()
 
+            var_tb = f'caminho_delete_all_{table}_{self.contador_funcoes}'
+            var_cabecalho = f'cabecalho_delete_{table}_{self.contador_funcoes}'
+            
+            self.data.add((var_tb, f'.asciiz "{caminho_tb}"'))
+            self.data.add((var_cabecalho, f'.asciiz "{linha}\\n"'))
+
+            self.text.append(f'\n    # DELETE all na tabela {table}')
+            self.text.append(f'    la $a0, {var_tb}')
+            self.text.append(f'    la $a1, {var_cabecalho}')
+            self.text.append(f'    li $a2, {len(linha) + 1}')
+            self.text.append(f'    jal limpar_dados_tabela')
+            
+            self.limpar_dados = True
+            self.contador_funcoes += 1
+        else:
+            pass
+
+        st_asm.endScope()
+
+        
     def visitDropDatabase(self, command):
         command.database.accept(self)
         database = command.database.name.lower()
         st_asm.addCommand('drop_db', database=database)
-        indice = st_asm.getContadorComandos()
-        var_db = f'caminho_db_{database}_{indice}'
+        var_db = f'caminho_db_{database}_{self.contador_funcoes}'
         caminho_db = f'databases/{database}'
         self.data.add((var_db, f'.asciiz "{caminho_db}"'))
         code = self.getList()
@@ -69,13 +98,13 @@ class AssemblyVisitor(AbstractVisitor):
         code.append('    addi $sp, $sp, -8')
         code.append('    sw $ra, 0($sp)')
         code.append('    sw $fp, 4($sp)')
-        code.append(f'    jal drop_db_{indice}')
+        code.append(f'    jal drop_db_{self.contador_funcoes}')
         code.append('    lw $fp, 4($sp)')
         code.append('    lw $ra, 0($sp)')
         code.append('    addi $sp, $sp, 8')
-        st_asm.beginScope('delete_db')
-        code = self.funcs
-        code.append(f'drop_db_{indice}:')
+        st_asm.beginScope('drop_db')
+        code = self.getList()
+        code.append(f'drop_db_{self.contador_funcoes}:')
         code.append(f'    move $fp, $sp')
         code.append(f'    la $a0, {var_db}')
         code.append(f'    li $v0, 100           # Syscall RemoveDir')
@@ -85,18 +114,18 @@ class AssemblyVisitor(AbstractVisitor):
         code.append(f'    j print_falha_rm_dir\n')
         self.acoes_log.append(f'D, DATABASE, {caminho_db}') 
         st_asm.endScope()
+        self.contador_funcoes += 1
 
     def visitDropTable(self, command):
         table = command.table.name.lower()
         st_asm.addCommand('drop_table', table=table)
-        indice = st_asm.getContadorComandos()
         var_arquivo = f'caminho_{self.nome_banco}_{self.nome_schema}_{table}'
         code = self.getList()
         code.append(f'\n    # Deletar da tabela {command.table.name}')
         code.append('    addi $sp, $sp, -8')
         code.append('    sw $ra, 0($sp)')
         code.append('    sw $fp, 4($sp)')
-        code.append(f'    jal drop_table_{indice}')
+        code.append(f'    jal drop_table_{self.contador_funcoes}')
         code.append('    lw $fp, 4($sp)')
         code.append('    lw $ra, 0($sp)')
         code.append('    addi $sp, $sp, 8')
@@ -104,7 +133,7 @@ class AssemblyVisitor(AbstractVisitor):
         command.table.accept(self)
         self.data.add((f'caminho_{self.nome_banco}_{self.nome_schema}_{table}', f'.asciiz "{self.caminho_arquivo_base}/{table}"'))
         code = self.getList()
-        code.append(f'drop_table_{indice}:')
+        code.append(f'drop_table_{self.contador_funcoes}:')
         code.append(f'    move $fp, $sp')
         code.append(f'    la $a0, {var_arquivo}')
         code.append(f'    li $v0, 100  # RemoveDir')
@@ -114,45 +143,56 @@ class AssemblyVisitor(AbstractVisitor):
         code.append(f'    j print_falha_rm_dir\n')
         self.acoes_log.append(f'D, TABLE, {self.caminho_arquivo_base}/{table}')
         st_asm.endScope()
+        self.contador_funcoes += 1
 
         
     def visitSelect(self, select):
-        code = self.getList()
-        code.append(f'\n    # SELECT na tabela {select.table.name}')    
-        code.append(f'    jal select_{st_asm.getContadorComandos()}')
+        self.text.append(f'\n    # SELECT na tabela {select.table.name}')    
+        self.text.append(f'    jal select_{self.contador_funcoes}')
         st_asm.beginScope('select')
-        code = self.getList()
-        code.append(f'select_{st_asm.getContadorComandos()}:')
         self.table_atual = select.table.name.lower()
         st_asm.addCommand('select', table=self.table_atual)
-        select.table.accept(self)
-        self.data.add((f'caminho_{self.nome_banco}_{self.nome_schema}_{self.table_atual}',
+        
+        self.data.add((f'caminho_{self.nome_banco}_{self.nome_schema}_{self.table_atual}_select_{self.contador_funcoes}',
                       f'.asciiz "{self.caminho_arquivo_base}/{self.table_atual}/{self.table_atual}.csv"'))
         self.data.add(('conteudoArquivo', f'.space {self.tamanho_buffer}'))
-        select.columns.accept(self)
-        self.table_atual = None
-        code.append(f'    jr $ra')
+        
+        self.funcs.append(f'\nselect_{self.contador_funcoes}:')
+        self.funcs.append(f'    addi $sp, $sp, -4')
+        self.funcs.append(f'    sw $ra, 0($sp)')
+        select.table.accept(self)
+        select.columns.accept(self)        
+        self.funcs.append(f'    lw $ra, 0($sp)')
+        self.funcs.append(f'    addi $sp, $sp, 4')
+        self.funcs.append(f'    jr $ra')
         st_asm.endScope()
+        self.table_atual = None
+        self.contador_funcoes += 1
 
     def visitSelectAll(self, select):
         code = self.getList()
+        self.adicionar_quebra_linha(code)
         code.append(f'    li $v0, 13 # Abrir arquivo')
         code.append(
-            f'    la $a0, caminho_{self.nome_banco}_{self.nome_schema}_{self.table_atual}')
+            f'    la $a0, caminho_{self.nome_banco}_{self.nome_schema}_{self.table_atual}_select_{self.contador_funcoes}')
         code.append(f'    li $a1, 0 # Modo leitura')
         code.append(f'    syscall\n')
         code.append(f'    move $s0, $v0')
         code.append(f'    move $a0, $s0')
         code.append(f'    li $v0, 14')
         code.append(f'    la $a1, conteudoArquivo')
-        code.append(f'    li $a2, {self.tamanho_buffer}')
+        code.append(f'    li $a2, {self.tamanho_buffer - 1}')
         code.append(f'    syscall\n')
+        code.append(f'    la $t0, conteudoArquivo')
+        code.append(f'    add $t0, $t0, $v0')
+        code.append(f'    sb $zero, 0($t0)')
         code.append(f'    li $v0, 4 # Imprimir arquivo')
         code.append(f'    la $a0, conteudoArquivo')
         code.append(f'    syscall\n')
         code.append(f'    li $v0, 16 # Fechar arquivo')
         code.append(f'    move $a0, $s0')
         code.append(f'    syscall\n')
+        self.adicionar_quebra_linha(code)
 
     def visitColumns(self, columns):
         pass
@@ -222,7 +262,7 @@ class AssemblyVisitor(AbstractVisitor):
             finalcode.append(f"    li $a2, {len(mensagem_log) - len(self.acoes_log)}")
             finalcode.append("    jal gravar_log")
         finalcode.append("\n    # Encerrar programa")
-        finalcode.append("    j end\n")
+        finalcode.append("    j end")
         if self.limpar_dados:
             self.criar_funcao_limpa_dados()
         self.criar_funcoes_feedback()
@@ -233,6 +273,11 @@ class AssemblyVisitor(AbstractVisitor):
         finalcode.append("    syscall")
         return "\n".join(finalcode)
 
+    def adicionar_quebra_linha(self, code):
+        code.append(f'    li $v0, 11')
+        code.append(f'    li $a0, 10')
+        code.append(f'    syscall\n')
+        
     def criar_funcao_limpa_dados(self):
         self.funcs.append('\n# --- Limpar dados da tabela ---')
         self.funcs.append('limpar_dados_tabela:')
@@ -245,22 +290,22 @@ class AssemblyVisitor(AbstractVisitor):
         self.funcs.append('    li $a1, 1')
         self.funcs.append('    li $a2, 0')
         self.funcs.append('    syscall')
-        self.funcs.append('    move $s0, $v0')
+        self.funcs.append('    move $t3, $v0')
         self.funcs.append('    ')
         self.funcs.append('    li $v0, 15')
-        self.funcs.append('    move $a0, $s0')
+        self.funcs.append('    move $a0, $t3')
         self.funcs.append('    move $a1, $t1')
         self.funcs.append('    move $a2, $t2')
         self.funcs.append('    syscall')
         self.funcs.append('    ')
         self.funcs.append('    li $v0, 16')
-        self.funcs.append('    move $a0, $s0')
+        self.funcs.append('    move $a0, $t3')
         self.funcs.append('    syscall')
         self.funcs.append('    jr $ra')
 
     def criar_funcoes_feedback(self):
         """Cria funções que apenas imprimem as mensagens e retornam"""
-        self.funcs.append('# --- Feedback ---')
+        self.funcs.append('\n# --- Feedback ---')
         self.funcs.append('print_sucesso_rm_dir:')
         self.funcs.append('    la $a0, mensagem_arquivo_dir_sucesso')
         self.funcs.append('    li $v0, 4')
