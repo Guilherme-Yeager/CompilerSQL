@@ -20,7 +20,7 @@ class AssemblyVisitor(AbstractVisitor):
         self.nome_schema = nome_schema
         self.caminho_arquivo_base = f'databases/{self.nome_banco}/schemes/{self.nome_schema}/tables'
         self.table_atual = None
-        self.limpar_dados = False # Flag para indicar se a função de deletar todas as linhas ser criada
+        self.limpar_dados = False # Flag para indicar se a função de deletar todas as linhas deve ser criada
         self.contador_funcoes = 1
 
     def visitEmptyScript(self, _):
