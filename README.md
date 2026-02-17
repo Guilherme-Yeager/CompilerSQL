@@ -55,7 +55,7 @@ A estrutura do projeto foi organizada de forma modular, separando claramente cad
 
 <h1 align="center">모 Visão arquitetural</h1>
 
-<img width="5400" height="3531" alt="Sem título-2025-07-30-1115" src="https://github.com/user-attachments/assets/a9dd2882-1146-4a32-a5cd-4bfb5e73e140" />
+<img width="5400" height="3531" alt="Sem título-2025-07-30-1115" src="https://github.com/user-attachments/assets/f3f476a9-d952-4cba-9334-1f15236a6dca" />
 
 <h1 align="center">🎮 Simulador MIPS</h1>
 
