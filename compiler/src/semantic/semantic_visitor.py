@@ -321,7 +321,6 @@ class SemanticVisitor(AbstractVisitor):
         self.comando_atual = ''
         st_sem.endScope()
 
-
     def visitCreateTable(self, command):
         pass
     

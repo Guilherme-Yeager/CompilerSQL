@@ -7,6 +7,8 @@ class Schema():
         self.nome_banco_atual = "master"
         self.nome_schema_atual = "dbo"
         self.caminho_catalogo = "compiler/resources/catalog.json"
+        self.caminho_log = "compiler/resources/transactions.log"
+        self.catalogo = {}
         try:
             with open(self.caminho_catalogo, 'r') as file:
                 self.catalogo = json.load(file)
@@ -47,6 +49,9 @@ class Schema():
         armazenado em 'self.nome_schema_atual' e atribui as informações 
         no atributo 'self.schema'
         '''
+        if not self.existe_banco(self.nome_banco_atual):
+            self.nome_banco_atual = "master"
+            self.nome_schema_atual = "dbo"
         self.schema = self.catalogo[self.nome_banco_atual][self.nome_schema_atual]
 
     def existe_banco(self, nome_banco):
@@ -216,10 +221,45 @@ class Schema():
             return True
         return False
 
-    def reset_catalogo(self):
+    def atualizar_catalogo(self):
         '''
-        Reseta o catálogo para o estado inicial padrão.
+        Atualiza o catálogo para o estado inicial.
         '''
-        with open(self.caminho_catalogo, 'r') as file:
-            self.catalogo = json.load(file)
+        self.reseta_catalogo()
         self.carregar_schema()
+    
+    def reseta_catalogo(self):
+        '''
+        Atualiza fisicamente o catálogo com as operações de criação e remoção de bancos e tabelas realizadas, 
+        lendo o arquivo de log de transações.
+        '''
+        catalogo = None
+
+        with open(self.caminho_catalogo, 'r') as file:
+            catalogo = json.load(file)
+        
+        self.catalogo = catalogo
+
+        with open(self.caminho_log, 'r') as file:
+            linhas = file.readlines()
+        
+        if not linhas:
+            return
+        
+        for linha in linhas:
+            partes = [item.strip() for item in linha.split(',')]
+            tipo_operacao, tipo_objeto, caminho = partes[0].lower(), partes[1].lower(), partes[2].lower()
+            caminho_partes = caminho.split('/')
+            if tipo_operacao == 'd':
+                if tipo_objeto == 'database':
+                    database = caminho_partes[1]
+                    del catalogo[database]
+                elif tipo_objeto == 'table':
+                    database, schema, table = caminho_partes[1], caminho_partes[3], caminho_partes[5]
+                    del catalogo[database][schema][table]
+                    
+        with open(self.caminho_catalogo, 'w') as file:
+            json.dump(self.catalogo, file, indent=4)
+
+        with open(self.caminho_log, 'w') as file:
+            pass

@@ -261,7 +261,7 @@ def main(nome_banco, nome_schema, schema=Schema(), text_sql=None):
     svisitor = sv.SemanticVisitor(schema)
     if result:
         result.accept(svisitor)
-        svisitor.schema.reset_catalogo()
+        svisitor.schema.atualizar_catalogo()
         if svisitor.n_errors > 0:
             print(
                 f'\nForam encontrados {svisitor.n_errors} erros semânticos.')

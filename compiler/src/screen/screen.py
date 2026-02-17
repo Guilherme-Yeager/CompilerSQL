@@ -21,6 +21,7 @@ class Screen():
         self.nome_schema_atual.trace_add("write", self.gerenciar_nome_schema)
         self.menu_schemas = None
         self.caixa_texto = None
+        self.schema.atualizar_catalogo()
         self.setup_screen()
 
     def setup_screen(self):
@@ -62,7 +63,6 @@ class Screen():
         menu_saida.add_radiobutton(
             label="XML", variable=self.opcao_saida, value=2)
         menu.add_cascade(label="Saída", menu=menu_saida)
-        
         self.janela.config(menu=menu)
         
 
@@ -111,6 +111,19 @@ class Screen():
         self.caixa_texto = tk.Text(self.janela, font=("Monospace", 12))
         self.caixa_texto.pack(padx=20, pady=10, fill="both", expand=True)
 
+    def atualizar_menus_interface(self):
+        bancos = self.schema.listar_bancos()
+        menu_db = self.menu_databases["menu"]
+        menu_db.delete(0, "end")
+
+        for banco in bancos:
+            menu_db.add_command(label=banco, command=lambda b=banco: self.nome_banco_atual.set(b))
+        
+        if self.nome_banco_atual.get() not in bancos:
+            self.nome_banco_atual.set("master")
+
+        self.gerenciar_nome_banco()
+
     def gerenciar_nome_schema(self, *args):
         self.schema.definir_nome_schema_atual(self.nome_schema_atual.get())
 
@@ -118,12 +131,13 @@ class Screen():
         if self.menu_schemas is None:
             return
         self.schema.nome_banco_atual = self.nome_banco_atual.get()
+
         lista_schemas = self.schema.listar_schemas()
         menu = self.menu_schemas["menu"]
         menu.delete(0, "end")
 
         if lista_schemas:
-            self.nome_schema_atual.set(lista_schemas[0])
+            self.nome_schema_atual.set(self.schema.nome_schema_atual)
             for schema in lista_schemas:
                 menu.add_command(
                     label=schema,
@@ -149,10 +163,12 @@ class Screen():
         elif opcao_analisador == 3:
             self.executar_semantico(
                 texto_sql.strip(), self.schema, mode_output)
-            self.schema.reset_catalogo()
+            self.schema.atualizar_catalogo()
+            self.atualizar_menus_interface()
 
     def gerar_assembly(self, nome_banco, nome_schema, schema, texto_sql):
         av.main(nome_banco, nome_schema, schema, texto_sql.strip())
+        self.atualizar_menus_interface()
 
     def executar(self):
         self.janela.mainloop()
