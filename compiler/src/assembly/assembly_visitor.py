@@ -1,3 +1,4 @@
+import os
 import compiler.src.assembly.symbol_table_asm as st_asm
 import compiler.src.semantic.semantic_visitor as sv
 from compiler.src.schema.schema import Schema
@@ -20,6 +21,7 @@ class AssemblyVisitor(AbstractVisitor):
         self.nome_schema = nome_schema
         self.caminho_arquivo_base = f'databases/{self.nome_banco}/schemes/{self.nome_schema}/tables'
         self.table_atual = None
+        self.limpar_dados = False # Flag para indicar se a função de limpeza de dados deve ser criada
 
     def visitEmptyScript(self, _):
         return
@@ -29,7 +31,24 @@ class AssemblyVisitor(AbstractVisitor):
         command.script.accept(self)
 
     def visitTruncate(self, command):
-        pass
+        table = command.table.name.lower()
+        st_asm.addCommand('truncate', table=table)
+        indice = st_asm.getContadorComandos()
+        caminho_tb = f'{self.caminho_arquivo_base}/{table}/{table}.csv'
+        with open(f'compiler/resources/{caminho_tb}', 'r') as file:
+            linha = file.readline().strip()
+        var_tb = f'caminho_truncate_{table}_{indice}'
+        var_cabecalho = f'cabecalho_truncate_{table}_{indice}'
+        self.data.add((var_tb, f'.asciiz "{caminho_tb}"'))
+        self.data.add((var_cabecalho, f'.asciiz "{linha}\\n"'))
+
+        code = self.getList()
+        code.append(f'\n    # TRUNCATE na tabela {table}')
+        code.append(f'    la $a0, {var_tb}')
+        code.append(f'    la $a1, {var_cabecalho}')
+        code.append(f'    li $a2, {len(linha) + 1}')
+        code.append(f'    jal limpar_dados_tabela')
+        self.limpar_dados = True
 
     def visitCreateDatabase(self, command):
         pass
@@ -204,7 +223,8 @@ class AssemblyVisitor(AbstractVisitor):
             finalcode.append("    jal gravar_log")
         finalcode.append("\n    # Encerrar programa")
         finalcode.append("    j end\n")
-
+        if self.limpar_dados:
+            self.criar_funcao_limpa_dados()
         self.criar_funcoes_feedback()
         self.criar_funcao_log()
         finalcode.extend(self.funcs)
@@ -213,10 +233,34 @@ class AssemblyVisitor(AbstractVisitor):
         finalcode.append("    syscall")
         return "\n".join(finalcode)
 
-    
+    def criar_funcao_limpa_dados(self):
+        self.funcs.append('\n# --- Limpar dados da tabela ---')
+        self.funcs.append('limpar_dados_tabela:')
+        self.funcs.append('    move $t0, $a0 ')
+        self.funcs.append('    move $t1, $a1')
+        self.funcs.append('    move $t2, $a2')
+        self.funcs.append('    ')
+        self.funcs.append('    li $v0, 13')
+        self.funcs.append('    move $a0, $t0')
+        self.funcs.append('    li $a1, 1')
+        self.funcs.append('    li $a2, 0')
+        self.funcs.append('    syscall')
+        self.funcs.append('    move $s0, $v0')
+        self.funcs.append('    ')
+        self.funcs.append('    li $v0, 15')
+        self.funcs.append('    move $a0, $s0')
+        self.funcs.append('    move $a1, $t1')
+        self.funcs.append('    move $a2, $t2')
+        self.funcs.append('    syscall')
+        self.funcs.append('    ')
+        self.funcs.append('    li $v0, 16')
+        self.funcs.append('    move $a0, $s0')
+        self.funcs.append('    syscall')
+        self.funcs.append('    jr $ra')
+
     def criar_funcoes_feedback(self):
         """Cria funções que apenas imprimem as mensagens e retornam"""
-        self.funcs.append('# --- Sub-rotinas de Feedback ---')
+        self.funcs.append('# --- Feedback ---')
         self.funcs.append('print_sucesso_rm_dir:')
         self.funcs.append('    la $a0, mensagem_arquivo_dir_sucesso')
         self.funcs.append('    li $v0, 4')
