@@ -137,7 +137,9 @@ class Screen():
         menu.delete(0, "end")
 
         if lista_schemas:
-            self.nome_schema_atual.set(self.schema.nome_schema_atual)
+            if self.nome_schema_atual.get() not in lista_schemas:
+                self.nome_schema_atual.set('dbo')
+                
             for schema in lista_schemas:
                 menu.add_command(
                     label=schema,
