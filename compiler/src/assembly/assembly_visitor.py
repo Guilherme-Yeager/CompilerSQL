@@ -10,12 +10,15 @@ class AssemblyVisitor(AbstractVisitor):
         st_asm.beginScope(st_asm.SCOPE_MAIN)
         self.funcs = []
         self.text = ['\n.text', '    move $fp, $sp']
-        self.data = set([('mensagem_arquivo_dir_sucesso', f'.asciiz "Recurso deletado com sucesso!\\n"'), ('mensagem_arquivo_dir_falha', f'.asciiz "Recurso não deletado.\\n"'), 
-                         ('log_file', f'.asciiz "transactions.log"')])
+        self.data = set([
+                            ('mensagem_arquivo_dir_sucesso', '.asciiz "Recurso deletado com sucesso!\\n"'), ('mensagem_arquivo_dir_falha', '.asciiz "Recurso não deletado.\\n"'), 
+                            ('mensagem_sucesso_create_dir', '.asciiz "Recurso criado com sucesso!\\n"'), ('mensagem_falha_create_dir', '.asciiz "Recurso não criado!\\n"'), 
+                            ('log_file', f'.asciiz "transactions.log"')
+                            ])
         self.rotulos = {}
         self.tamanho_buffer = 1024
 
-        self.acoes_log = []
+        self.acoes_log = [] # Cada registro é composto por 'TIPO, OBJETO, CAMINHO, OBSERVACAO'
         self.nome_banco = nome_banco
         self.nome_schema = nome_schema
         self.caminho_arquivo_base = f'databases/{self.nome_banco}/schemes/{self.nome_schema}/tables'
@@ -37,7 +40,7 @@ class AssemblyVisitor(AbstractVisitor):
         caminho_tb = f'{self.caminho_arquivo_base}/{table}/{table}.csv'
         with open(f'compiler/resources/{caminho_tb}', 'r') as file:
             linha = file.readline().strip()
-            
+        
         var_tb = f'caminho_truncate_{table}_{self.contador_funcoes}'
         var_cabecalho = f'cabecalho_truncate_{table}_{self.contador_funcoes}'
         self.data.add((var_tb, f'.asciiz "{caminho_tb}"'))
@@ -54,7 +57,32 @@ class AssemblyVisitor(AbstractVisitor):
         st_asm.endScope()
 
     def visitCreateDatabase(self, command):
-        pass
+        st_asm.beginScope('create_database')
+        nome_db = command.database.name.lower()
+        st_asm.addCommand('create_db', database=nome_db)
+        caminho_db = f'databases/{nome_db}/schemes/dbo'
+        var_db = f'caminho_create_db_{nome_db}_{self.contador_funcoes}'
+
+        self.data.add((var_db, f'.asciiz "{caminho_db}"'))  
+        self.text.append(f'\n    # CREATE DATABASE - {nome_db}')
+        self.text.append('    addi $sp, $sp, -4')
+        self.text.append('    sw $ra, 0($sp)')
+        self.text.append(f'    jal create_db_{self.contador_funcoes}')
+        self.text.append('    lw $ra, 0($sp)') 
+        self.text.append('    addi $sp, $sp, 4')
+        st_asm.beginScope('create_db_sub')
+        self.funcs.append(f'\ncreate_db_{self.contador_funcoes}:')
+        self.funcs.append(f'    la $a0, {var_db}')
+        self.funcs.append(f'    li $v0, 101')
+        self.funcs.append(f'    syscall')
+        self.funcs.append(f'    li $t0, 1')
+        self.funcs.append(f'    beq $v0, $t0, print_sucesso_create_dir')
+        self.funcs.append(f'    j print_falha_create_dir') 
+        self.acoes_log.append(f'C, DATABASE, {caminho_db},')
+        st_asm.endScope()
+        
+        self.contador_funcoes += 1
+        st_asm.endScope()
 
     def visitDelete(self, delete):
         st_asm.beginScope('delete')
@@ -112,7 +140,7 @@ class AssemblyVisitor(AbstractVisitor):
         code.append(f'    li $t0, 1')
         code.append(f'    beq $v0, $t0, print_sucesso_rm_dir')
         code.append(f'    j print_falha_rm_dir\n')
-        self.acoes_log.append(f'D, DATABASE, {caminho_db}') 
+        self.acoes_log.append(f'D, DATABASE, {caminho_db},') 
         st_asm.endScope()
         self.contador_funcoes += 1
 
@@ -141,7 +169,7 @@ class AssemblyVisitor(AbstractVisitor):
         code.append(f'    li $t0, 1')
         code.append(f'    beq $v0, $t0, print_sucesso_rm_dir')
         code.append(f'    j print_falha_rm_dir\n')
-        self.acoes_log.append(f'D, TABLE, {self.caminho_arquivo_base}/{table}')
+        self.acoes_log.append(f'D, TABLE, {self.caminho_arquivo_base}/{table},')
         st_asm.endScope()
         self.contador_funcoes += 1
 
@@ -171,7 +199,6 @@ class AssemblyVisitor(AbstractVisitor):
 
     def visitSelectAll(self, select):
         code = self.getList()
-        self.adicionar_quebra_linha(code)
         code.append(f'    li $v0, 13 # Abrir arquivo')
         code.append(
             f'    la $a0, caminho_{self.nome_banco}_{self.nome_schema}_{self.table_atual}_select_{self.contador_funcoes}')
@@ -317,7 +344,20 @@ class AssemblyVisitor(AbstractVisitor):
         self.funcs.append('    li $v0, 4')
         self.funcs.append('    syscall')
         self.funcs.append('    jr $ra')
-    
+
+        self.funcs.append('\nprint_sucesso_create_dir:')
+        self.funcs.append('    la $a0, mensagem_sucesso_create_dir')
+        self.funcs.append('    li $v0, 4')
+        self.funcs.append('    syscall')
+        self.funcs.append('    jr $ra')
+        
+        self.funcs.append('\nprint_falha_create_dir:')
+        self.funcs.append('    la $a0, mensagem_falha_create_dir')
+        self.funcs.append('    li $v0, 4')
+        self.funcs.append('    syscall')
+        self.funcs.append('    jr $ra')
+
+
     def criar_funcao_log(self):
         self.funcs.append('\n# --- Gravação de Log ---')
         self.funcs.append('gravar_log:')

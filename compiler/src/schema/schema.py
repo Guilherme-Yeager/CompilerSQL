@@ -257,7 +257,16 @@ class Schema():
                 elif tipo_objeto == 'table':
                     database, schema, table = caminho_partes[1], caminho_partes[3], caminho_partes[5]
                     del catalogo[database][schema][table]
-        
+            elif tipo_operacao == 'c':
+                if tipo_objeto == 'database':
+                    database = caminho_partes[1]
+                    catalogo[database] = {
+                            "bindable": "database",
+                            "dbo": { "bindable": "scheme" }
+                        }
+                elif tipo_objeto == 'table':
+                    pass
+                    
         self.catalogo = catalogo
         
         with open(self.caminho_catalogo, 'w') as file:

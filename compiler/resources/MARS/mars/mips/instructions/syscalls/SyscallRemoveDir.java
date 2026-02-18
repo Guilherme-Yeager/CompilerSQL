@@ -5,8 +5,8 @@ import mars.ProgramStatement;
 
 import java.io.File;
 
-public class RemoveDir extends AbstractSyscall {
-    public RemoveDir() {
+public class SyscallRemoveDir extends AbstractSyscall {
+    public SyscallRemoveDir() {
         super(100, "RemoveDir");
     }
 
