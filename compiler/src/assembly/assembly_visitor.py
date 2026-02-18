@@ -11,8 +11,8 @@ class AssemblyVisitor(AbstractVisitor):
         self.funcs = []
         self.text = ['\n.text', '    move $fp, $sp']
         self.data = set([
-                            ('mensagem_arquivo_dir_sucesso', '.asciiz "Recurso deletado com sucesso!\\n"'), ('mensagem_arquivo_dir_falha', '.asciiz "Recurso não deletado.\\n"'), 
-                            ('mensagem_sucesso_create_dir', '.asciiz "Recurso criado com sucesso!\\n"'), ('mensagem_falha_create_dir', '.asciiz "Recurso não criado!\\n"'), 
+                            ('mensagem_arquivo_dir_sucesso', '.asciiz "Recurso deletado com sucesso!\\n\\n"'), ('mensagem_arquivo_dir_falha', '.asciiz "Recurso não deletado.\\n\\n"'), 
+                            ('mensagem_sucesso_create_dir', '.asciiz "Recurso criado com sucesso!\\n\\n"'), ('mensagem_falha_create_dir', '.asciiz "Recurso não criado!\\n\\n"'), 
                             ('log_file', f'.asciiz "transactions.log"')
                             ])
         self.rotulos = {}
