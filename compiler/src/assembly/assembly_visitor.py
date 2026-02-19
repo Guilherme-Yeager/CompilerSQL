@@ -1,3 +1,5 @@
+from matplotlib.pylab import insert
+
 import compiler.src.assembly.symbol_table_asm as st_asm
 import compiler.src.semantic.semantic_visitor as sv
 from compiler.src.schema.schema import Schema
@@ -249,7 +251,143 @@ class AssemblyVisitor(AbstractVisitor):
         pass
 
     def visitInsert(self, insert):
-        pass
+        st_asm.beginScope('insert')
+
+        table = insert.table.name.lower()
+        st_asm.addCommand(
+        'insert',
+        table=table,
+        columns=[c.name.lower() for c in insert.columns.columns_list] if insert.columns else None,
+        values=insert.parameters
+    )
+
+    # caminho padrão do projeto (igual truncate/delete)
+    caminho_tb = f'{self.caminho_arquivo_base}/{table}/{table}.csv'
+    caminho_fisico = f'compiler/resources/{caminho_tb}'
+
+    # helpers 
+    def _asm_escape(s: str) -> str:
+        # para caber em .asciiz "..."
+        return (s.replace('\\', '\\\\')
+                 .replace('"', '\\"')
+                 .replace('\r', '\\r')
+                 .replace('\n', '\\n'))
+
+    def _value_to_csv(expr) -> str:
+        cls = expr.__class__.__name__
+
+        if cls == 'FactorInt':
+            return str(expr.value)
+
+        if cls == 'FactorString':
+            raw = expr.value  # geralmente vem com aspas simples: 'texto'
+            if len(raw) >= 2 and raw[0] == "'" and raw[-1] == "'":
+                raw = raw[1:-1]
+            raw = raw.replace("''", "'")
+            return raw
+
+        if cls == 'FactorNull':
+            return ""  # campo vazio no CSV
+
+        # fallback
+        if hasattr(expr, 'value'):
+            return str(expr.value)
+        return str(expr)
+
+    #  1) ler arquivo inteiro (compile-time) 
+    with open(caminho_fisico, 'r', encoding='utf-8') as f:
+        conteudo_antigo = f.read()
+
+    # garante quebra no final pra não colar na última linha
+    if conteudo_antigo and not conteudo_antigo.endswith('\n'):
+        conteudo_antigo += '\n'
+
+    # 2) montar nova linha 
+    header_cols = []
+    if conteudo_antigo:
+        header_line = conteudo_antigo.split('\n', 1)[0]
+        header_cols = [c.strip().lower() for c in header_line.split(',') if c.strip() != ""]
+
+    valores_csv = [_value_to_csv(v) for v in insert.parameters]
+
+    if insert.columns:
+        cols_insert = [c.name.lower() for c in insert.columns.columns_list]
+        linha_final = [""] * len(header_cols)
+
+        for i, col in enumerate(cols_insert):
+            if i >= len(valores_csv):
+                break
+            if col in header_cols:
+                idx = header_cols.index(col)
+                linha_final[idx] = valores_csv[i]
+
+        nova_linha = ",".join(linha_final)
+    else:
+        nova_linha = ",".join(valores_csv)
+
+    # 3) labels .data
+    # newline global (se já existir no set, ok; set evita duplicar)
+    self.data.add(('newline', '.asciiz "\\n"'))
+
+    var_tb  = f'caminho_insert_{table}_{self.contador_funcoes}'
+    var_old = f'dados_antigos_insert_{table}_{self.contador_funcoes}'
+    var_new = f'nova_linha_insert_{table}_{self.contador_funcoes}'
+
+    self.data.add((var_tb,  f'.asciiz "{_asm_escape(caminho_tb)}"'))
+    self.data.add((var_old, f'.asciiz "{_asm_escape(conteudo_antigo)}"'))
+    self.data.add((var_new, f'.asciiz "{_asm_escape(nova_linha)}"'))
+
+    # 4) chamada na main (salva/recupera )
+    self.text.append(f'\n    # INSERT na tabela {table}')
+    self.text.append('    addi $sp, $sp, -4')
+    self.text.append('    sw $ra, 0($sp)')
+    self.text.append(f'    jal insert_{self.contador_funcoes}')
+    self.text.append('    lw $ra, 0($sp)')
+    self.text.append('    addi $sp, $sp, 4')
+
+    # 5) função insert_N
+    self.funcs.append(f'\ninsert_{self.contador_funcoes}:')
+    # open(path, mode=write overwrite)
+    self.funcs.append('    li $v0, 13')
+    self.funcs.append(f'    la $a0, {var_tb}')
+    self.funcs.append('    li $a1, 1')
+    self.funcs.append('    li $a2, 0')
+    self.funcs.append('    syscall')
+    self.funcs.append('    move $t0, $v0   # fd')
+
+    # write old content (pode ser vazio)
+    self.funcs.append('    li $v0, 15')
+    self.funcs.append('    move $a0, $t0')
+    self.funcs.append(f'    la $a1, {var_old}')
+    self.funcs.append(f'    li $a2, {len(conteudo_antigo)}')
+    self.funcs.append('    syscall')
+
+    # write new row
+    self.funcs.append('    li $v0, 15')
+    self.funcs.append('    move $a0, $t0')
+    self.funcs.append(f'    la $a1, {var_new}')
+    self.funcs.append(f'    li $a2, {len(nova_linha)}')
+    self.funcs.append('    syscall')
+
+    # write "\n"
+    self.funcs.append('    li $v0, 15')
+    self.funcs.append('    move $a0, $t0')
+    self.funcs.append('    la $a1, newline')
+    self.funcs.append('    li $a2, 1')
+    self.funcs.append('    syscall')
+
+    # close
+    self.funcs.append('    li $v0, 16')
+    self.funcs.append('    move $a0, $t0')
+    self.funcs.append('    syscall')
+    self.funcs.append('    jr $ra')
+
+    # log da operação (sem observação específica, mas poderia ter: e.g. "colunas: x,y,z" ou "valores: 1,'abc',NULL")
+    self.acoes_log.append(f'I, TABLE, {caminho_tb},')
+
+    self.contador_funcoes += 1
+    st_asm.endScope()
+ 
 
     def visitAssignmentUpdate(self, update):
         pass
