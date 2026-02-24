@@ -75,7 +75,6 @@ class Schema():
             self.carregar_schema()
         return nome_tabela in self.schema and self.schema[nome_tabela].get("bindable", "") == "table"
 
-
     def existe_tabela(self, nome_tabela):
         '''
         Verifica se uma tabela existe no schema atual.
@@ -220,6 +219,54 @@ class Schema():
             self.catalogo[nome_banco] = {"bindable": "database", "dbo": {"bindable": "scheme"}}
             return True
         return False
+    
+    def create_table_catalogo(self, nome_tabela, colunas):
+        '''
+        Adiciona uma tabela ao schema atual no catálogo.
+
+        Args:
+            nome_banco (str): O nome do banco a ser adicionado.
+            colunas (list[ColumnDefinition]): Uma lista de objetos contendo as 
+                definições de nome, tipo e restrições de cada coluna.
+
+        Returns:
+            bool: True se o banco foi adicionado, False caso contrário.
+        '''
+        
+        if not self.existe_tabela(nome_tabela):
+            nova_tabela = {
+                "bindable": "table",
+                "columns": {}
+            }
+            for coluna in colunas:
+                restricoes = []
+
+                if coluna.identity:
+                    seed, increment = coluna.identity
+                    restricoes.append(f"identity({seed},{increment})")
+
+                if coluna.nullability:
+                    restricoes.append(coluna.nullability.lower())
+
+                if coluna.default_value:
+                    valor = coluna.default_value.value
+                    if isinstance(valor, str):
+                        restricoes.append(f"default({valor.lower()})")
+                    else:
+                        restricoes.append(f"default({valor})")
+                        
+                if coluna.constraints:
+                    for constraint in coluna.constraints:
+                        restricoes.append(constraint.lower())
+
+                tipo_nome = coluna.type[0].lower()
+                tamanho = coluna.type[1]
+                tipo_final = f"{tipo_nome}({tamanho})" if tamanho else tipo_nome
+                nova_tabela["columns"][coluna.name.lower()] = [tipo_final] + restricoes
+        
+            self.catalogo[self.nome_banco_atual][self.nome_schema_atual][nome_tabela.lower()] = nova_tabela
+            return True
+        return False
 
     def atualizar_catalogo(self):
         '''
@@ -274,3 +321,5 @@ class Schema():
 
         with open(self.caminho_log, 'w') as file:
             pass
+    
+    

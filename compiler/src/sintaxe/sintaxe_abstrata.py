@@ -68,6 +68,10 @@ class CreateDatabase(Command):
     def accept(self, visitor):
         return visitor.visitCreateDatabase(self)
 
+'''
+    Create Table
+'''
+
 class CreateTable:
     def __init__(self, table, columns):
         self.table = table
@@ -79,9 +83,9 @@ class CreateTable:
 class ColumnDefinition:
     def __init__(self, name, col_type, nullability=None, identity=None,  constraints=None, default_value=None): 
         self.name = name
-        self.type = col_type    
+        self.type = col_type
         self.nullability = nullability
-        self.identity = identity  
+        self.identity = identity
         self.constraints = constraints or []
         self.default_value = default_value
 

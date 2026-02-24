@@ -1,3 +1,4 @@
+import re
 import compiler.src.semantic.symbol_table_semantic as st_sem
 from compiler.src.visitor.visitor import *
 from compiler.src.schema.schema import Schema
@@ -9,7 +10,7 @@ class SemanticVisitor(AbstractVisitor):
     TIPO_INT = 'int'
     TIPO_STR = 'string'
 
-    def __init__(self, schema):
+    def __init__(self, schema: Schema):
         self.printer = Visitor()
         self.schema = schema
         self.table_atual = None
@@ -322,10 +323,87 @@ class SemanticVisitor(AbstractVisitor):
         st_sem.endScope()
 
     def visitCreateTable(self, command):
-        pass
+        st_sem.beginScope('createTable')
+        nome_tabela = command.table.name.lower()
+        self.table_atual = nome_tabela
+        self.comando_atual = 'CREATE TABLE'
+
+        if self.schema.existe_tabela(nome_tabela):
+            print(
+                f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (CREATE TABLE)> : "
+                f"Tabela '{nome_tabela}' já existe no schema."
+            )
+            self.n_errors += 1
+            st_sem.endScope()
+            return
+
+        nomes_colunas_vistas = set()
+        
+        for col_def in command.columns:
+            
+            if col_def.name.lower() in nomes_colunas_vistas:
+                print(
+                    f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command} (CREATE TABLE)> : "
+                    f"Coluna duplicada '{col_def.name}' na definição da tabela '{nome_tabela}'."
+                )
+                self.n_errors += 1
+            else:
+                nomes_colunas_vistas.add(col_def.name.lower())
+
+            col_def.accept(self)
+
+        if self.n_errors == 0:
+            self.schema.create_table_catalogo(nome_tabela, command.columns)
+
+        self.table_atual = None
+        self.comando_atual = ''
+        st_sem.endScope()
     
     def visitColumnDefinition(self, column):
-        pass
+        
+        tipo_nome, tamanho = column.type 
+        tipo = tipo_nome.lower().strip()
+        tipo_formatado = f"{tipo}({tamanho})" if tamanho else tipo
+        
+        regex_tipo = r"^(int|varchar(\(\d+\))?)$"
+
+        if not re.match(regex_tipo, tipo_formatado):
+            print(f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command}> : "
+                  f"Tipo '{tipo_formatado}' inválido para a coluna '{column.name}'.")
+            self.n_errors += 1
+            return
+
+        restricoes_suportadas = ['primary key', 'not null', 'null', 'unique', 'identity']
+        restricoes_vistas = set()
+
+        if column.constraints:
+            for constraint in column.constraints:
+                
+                constraint_lower = constraint.lower()
+                
+                if constraint_lower not in restricoes_suportadas:
+                    print(f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command}> : "
+                          f"Restrição '{constraint}' não é suportada.")
+                    self.n_errors += 1
+                    continue
+                
+                if constraint_lower in restricoes_vistas:
+                    print(f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command}> : "
+                          f"Restrição '{constraint}' duplicada na coluna '{column.name}'.")
+                    self.n_errors += 1
+                else:
+                    restricoes_vistas.add(constraint_lower)
+
+        if 'null' in restricoes_vistas and 'not null' in restricoes_vistas:
+            print(f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command}> : "
+                  f"Conflito de restrições na coluna '{column.name}': NULL e NOT NULL.")
+            self.n_errors += 1
+
+        if column.identity and column.default_value:
+            print(f"\n[Erro] <Comando #{self.printer.aux_printer.pos_command}> : "
+                f"A coluna '{column.name}' não pode ter IDENTITY e DEFAULT simultaneamente.")
+            self.n_errors += 1
+
 
     def buscar_tipo_factor(self, factor):
         '''

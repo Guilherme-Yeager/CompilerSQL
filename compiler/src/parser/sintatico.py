@@ -114,8 +114,8 @@ def p_column_constraint_unique(p):
     p[0] = 'UNIQUE'
 
 def p_column_default(p):
-    'column_default_opt : DEFAULT factor'
-    p[0] = p[2]
+    'column_default_opt : DEFAULT LPAREN factor RPAREN'
+    p[0] = p[3]
 
 def p_column_default_empty(p):
     'column_default_opt : '
@@ -357,6 +357,6 @@ def p_columns(p):
 
 def p_error(p):
     if p:
-        print(f"Erro sintático no token: {p.value} | Linha: {p.lineno}\n")
+        print(f"\nErro sintático no token: {p.value} | Linha: {p.lineno}")
     else:
-        print("Erro sintático no final do arquivo\n")
+        print("\nErro sintático no final do arquivo.")
