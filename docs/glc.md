@@ -27,7 +27,7 @@ Terminais são representados pelos elementos cuja grafia está em maiúsculo, be
     -- Insert
 
     insert → INSERT INTO object LPAREN  columns RPAREN VALUES LPAREN parameters RPAREN |
-             INSERT INTO object VALUES LPAREN parameters RPAREN |
+             INSERT INTO object VALUES LPAREN parameters RPAREN
             
     
     -- Select

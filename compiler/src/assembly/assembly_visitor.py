@@ -2,7 +2,7 @@ import compiler.src.assembly.symbol_table_asm as st_asm
 import compiler.src.semantic.semantic_visitor as sv
 from compiler.src.schema.schema import Schema
 from compiler.src.visitor.visitor import *
-
+from os.path import getsize
 
 class AssemblyVisitor(AbstractVisitor):
 
@@ -250,55 +250,77 @@ class AssemblyVisitor(AbstractVisitor):
 
     def visitInsert(self, insert):
         table = insert.table.name.lower()
-
-        st_asm.addCommand('insert', table=table)
-        indice = st_asm.getContadorComandos()
-    
-        var_tb = f'caminho_insert_{table}_{indice}_{self.contador_funcoes}'
+        
+        var_tb = f'caminho_insert_{table}_{self.contador_funcoes}'
         caminho_tb = f'{self.caminho_arquivo_base}/{table}/{table}.csv'
         self.data.add((var_tb, f'.asciiz "{caminho_tb}"'))
         
-        with open(caminho_tb, 'r', encoding='utf-8') as file:
-            linhas = file.read()
-
         novos_valores = ",".join([str(p.value) if hasattr(p, 'value') else str(p) for p in insert.parameters])
-        conteudo_final = f"{linhas}{novos_valores}\\n" 
-        self.data.add((f'valores_insert_{self.contador_funcoes}', f'.asciiz "{conteudo_final}"'))
-        code = self.getList()
-
-        code.append(f'\n    # --- INSERT na tabela - {table} ---')
+        var_novos = f'novos_valores_{self.contador_funcoes}'
+        var_buffer = f'buffer_insert_{self.contador_funcoes}'
         
+        self.data.add((var_buffer, f'.space {self.tamanho_buffer}'))
+        self.data.add((var_novos, f'.asciiz "{novos_valores}\\n"'))
+
+        code = self.getList()
+        code.append(f'\n    # --- INSERT na tabela "{table}" ---')
         code.append('    addi $sp, $sp, -8')
         code.append('    sw $ra, 0($sp)')
         code.append('    sw $fp, 4($sp)')
-        code.append(f'    jal insert_op_{indice}')
+        code.append(f'    jal insert_{self.contador_funcoes}')
         code.append('    lw $fp, 4($sp)')
         code.append('    lw $ra, 0($sp)')
         code.append('    addi $sp, $sp, 8')
 
-        st_asm.beginScope('insert_op')
-        f_code = self.funcs
-        f_code.append(f'\ninsert_op_{indice}:')
-        f_code.append('    move $fp, $sp')
-        
-        f_code.append('    li $v0, 13')
-        f_code.append(f'    la $a0, {var_tb}')
-        f_code.append('    li $a1, 1')
-        f_code.append('    li $a2, 0')
-        f_code.append('    syscall')
-        f_code.append('    move $s0, $v0')
-        
-        f_code.append('    li $v0, 15')
-        f_code.append('    move $a0, $s0')
-        f_code.append(f'    la $a1, valores_insert_{self.contador_funcoes}')
-        f_code.append(f'    li $a2, {len(conteudo_final.replace('\\n', '\n'))}')
-        f_code.append('    syscall')
-        
-        f_code.append('    li $v0, 16')
-        f_code.append('    move $a0, $s0')
-        f_code.append('    syscall')
-        
-        f_code.append('    jr $ra')
+        st_asm.beginScope('insert')
+        st_asm.addCommand('insert', table=table, values=insert.parameters)
+        code = self.getList()
+
+        # Leitura
+        code.append(f'\ninsert_{self.contador_funcoes}:')
+        code.append('    addi $sp, $sp, -4')
+        code.append('    sw $ra, 0($sp)')
+
+        code.append('    li $v0, 13')
+        code.append(f'    la $a0, {var_tb}')
+        code.append('    li $a1, 0')
+        code.append('    syscall')
+        code.append('    move $s0, $v0')
+        code.append('    li $v0, 14')
+        code.append('    move $a0, $s0')
+        code.append(f'    la $a1, {var_buffer}')
+        code.append(f'    li $a2, {self.tamanho_buffer}')
+        code.append('    syscall')
+        code.append('    move $s1, $v0')
+        code.append('    li $v0, 16')
+        code.append('    move $a0, $s0')
+        code.append('    syscall\n')
+
+        # Junta os valores
+        code.append(f'    la $a0, {var_buffer}')
+        code.append(f'    la $a1, {var_novos}')
+        code.append('    move $a2, $s1')
+        code.append('    jal str_append')
+        code.append('    move $s3, $v0\n')
+
+        # Escrita
+        code.append('    li $v0, 13')
+        code.append(f'    la $a0, {var_tb}')
+        code.append('    li $a1, 1')
+        code.append('    syscall')
+        code.append('    move $s0, $v0')
+        code.append('    li $v0, 15')
+        code.append('    move $a0, $s0')
+        code.append(f'    la $a1, {var_buffer}')
+        code.append('    move $a2, $s3')
+        code.append('    syscall')
+        code.append('    li $v0, 16')
+        code.append('    move $a0, $s0')
+        code.append('    syscall')
+
+        code.append('    lw $ra, 0($sp)')
+        code.append('    addi $sp, $sp, 4')
+        code.append('    jr $ra')
         st_asm.endScope()
         self.contador_funcoes += 1
 
@@ -345,6 +367,7 @@ class AssemblyVisitor(AbstractVisitor):
             self.criar_funcao_limpa_dados()
         self.criar_funcoes_feedback()
         self.criar_funcao_log()
+        self.criar_funcao_append()
         finalcode.extend(self.funcs)
         finalcode.append("\nend:")
         finalcode.append("    li $v0, 10")
@@ -408,7 +431,6 @@ class AssemblyVisitor(AbstractVisitor):
         self.funcs.append('    syscall')
         self.funcs.append('    jr $ra')
 
-
     def criar_funcao_log(self):
         self.funcs.append('\n# --- Gravação de Log ---')
         self.funcs.append('gravar_log:')
@@ -425,6 +447,25 @@ class AssemblyVisitor(AbstractVisitor):
         self.funcs.append('    syscall')
         self.funcs.append('    li $v0, 16')
         self.funcs.append('    syscall')
+        self.funcs.append('    jr $ra')
+
+    def criar_funcao_append(self):
+        self.funcs.append('\n# --- Concatena - $a1 no fim de $a0 --- ')
+        self.funcs.append('str_append:')
+        self.funcs.append('    add $t0, $a0, $a2')
+        self.funcs.append('    move $t1, $a1')
+        
+        self.funcs.append('\nloop_append:')
+        self.funcs.append('    lb $t2, 0($t1)')
+        self.funcs.append('    beqz $t2, fim_append')
+        self.funcs.append('    sb $t2, 0($t0)')
+        self.funcs.append('    addi $t0, $t0, 1')
+        self.funcs.append('    addi $t1, $t1, 1')
+        self.funcs.append('    j loop_append')
+        
+        self.funcs.append('\nfim_append:')
+        self.funcs.append('    sb $zero, 0($t0)')
+        self.funcs.append('    sub $v0, $t0, $a0')
         self.funcs.append('    jr $ra')
 
 

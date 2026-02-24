@@ -150,7 +150,7 @@ class Schema():
             list (str): Uma lista contendo as restrições da coluna.
         '''
         if self.existe_coluna(nome_tabela, nome_coluna):
-            return self.schema[nome_tabela]["columns"][nome_coluna][1:]
+            return self.schema[nome_tabela]["columns"][nome_coluna.lower()][1:]
         return []
 
     def definir_banco_atual(self, nome_banco_atual):
