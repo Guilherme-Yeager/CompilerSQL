@@ -249,7 +249,58 @@ class AssemblyVisitor(AbstractVisitor):
         pass
 
     def visitInsert(self, insert):
-        pass
+        table = insert.table.name.lower()
+
+        st_asm.addCommand('insert', table=table)
+        indice = st_asm.getContadorComandos()
+    
+        var_tb = f'caminho_insert_{table}_{indice}_{self.contador_funcoes}'
+        caminho_tb = f'{self.caminho_arquivo_base}/{table}/{table}.csv'
+        self.data.add((var_tb, f'.asciiz "{caminho_tb}"'))
+        
+        with open(caminho_tb, 'r', encoding='utf-8') as file:
+            linhas = file.read()
+
+        novos_valores = ",".join([str(p.value) if hasattr(p, 'value') else str(p) for p in insert.parameters])
+        conteudo_final = f"{linhas}{novos_valores}\\n" 
+        self.data.add((f'valores_insert_{self.contador_funcoes}', f'.asciiz "{conteudo_final}"'))
+        code = self.getList()
+
+        code.append(f'\n    # --- INSERT na tabela - {table} ---')
+        
+        code.append('    addi $sp, $sp, -8')
+        code.append('    sw $ra, 0($sp)')
+        code.append('    sw $fp, 4($sp)')
+        code.append(f'    jal insert_op_{indice}')
+        code.append('    lw $fp, 4($sp)')
+        code.append('    lw $ra, 0($sp)')
+        code.append('    addi $sp, $sp, 8')
+
+        st_asm.beginScope('insert_op')
+        f_code = self.funcs
+        f_code.append(f'\ninsert_op_{indice}:')
+        f_code.append('    move $fp, $sp')
+        
+        f_code.append('    li $v0, 13')
+        f_code.append(f'    la $a0, {var_tb}')
+        f_code.append('    li $a1, 1')
+        f_code.append('    li $a2, 0')
+        f_code.append('    syscall')
+        f_code.append('    move $s0, $v0')
+        
+        f_code.append('    li $v0, 15')
+        f_code.append('    move $a0, $s0')
+        f_code.append(f'    la $a1, valores_insert_{self.contador_funcoes}')
+        f_code.append(f'    li $a2, {len(conteudo_final.replace('\\n', '\n'))}')
+        f_code.append('    syscall')
+        
+        f_code.append('    li $v0, 16')
+        f_code.append('    move $a0, $s0')
+        f_code.append('    syscall')
+        
+        f_code.append('    jr $ra')
+        st_asm.endScope()
+        self.contador_funcoes += 1
 
     def visitAssignmentUpdate(self, update):
         pass
