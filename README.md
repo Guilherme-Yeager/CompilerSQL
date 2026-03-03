@@ -172,5 +172,3 @@ A seguir, um exemplo de catálogo padrão utilizado pelo compilador:
 
 - Python	3.14.2 >=
 - Java 24.0.1 >=
-
-⚠️ Projeto em andamento...
